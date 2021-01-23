@@ -1,4 +1,7 @@
-use actix_web::{get, App, HttpResponse, HttpServer, Responder};
+use actix_web::{
+    get, middleware::Logger, App, HttpResponse, HttpServer, Responder,
+};
+use env_logger::{Builder, Env};
 
 use std::io::Result;
 
@@ -9,7 +12,9 @@ async fn meetings() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> Result<()> {
-    HttpServer::new(|| App::new().service(meetings))
+    Builder::from_env(Env::default().default_filter_or("info")).init();
+
+    HttpServer::new(|| App::new().wrap(Logger::default()).service(meetings))
         .bind("127.0.0.1:8080")?
         .run()
         .await
