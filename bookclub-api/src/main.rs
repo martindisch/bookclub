@@ -1,5 +1,6 @@
 use actix_web::{
-    get, middleware::Logger, App, HttpResponse, HttpServer, Responder,
+    get, middleware::Logger, post, web, App, HttpResponse, HttpServer,
+    Responder,
 };
 use dotenv::dotenv;
 use env_logger::{Builder, Env};
@@ -7,11 +8,20 @@ use mongodb::Client;
 
 use std::{env, io::Result};
 
-use bookclub_api::{MeetingRepository, MeetingService};
+use bookclub_api::{Meeting, MeetingRepository, MeetingService};
 
 #[get("/v1/meetings")]
 async fn meetings() -> impl Responder {
     HttpResponse::Ok().body("Hello, world!")
+}
+
+#[post("/v1/meetings")]
+async fn create_meeting(
+    meeting: web::Json<Meeting>,
+    app_state: web::Data<AppState>,
+) -> impl Responder {
+    app_state.meeting_service.create_meeting(&meeting).await;
+    HttpResponse::Ok()
 }
 
 struct AppState {
@@ -40,6 +50,7 @@ async fn main() -> Result<()> {
             .data(AppState { meeting_service })
             .wrap(Logger::default())
             .service(meetings)
+            .service(create_meeting)
     })
     .bind("127.0.0.1:8080")?
     .run()
