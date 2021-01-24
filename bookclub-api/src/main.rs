@@ -18,13 +18,16 @@ async fn meetings() -> impl Responder {
 #[post("/v1/meetings")]
 async fn create_meeting(
     meeting: web::Json<Meeting>,
-    app_state: web::Data<AppState>,
+    service_container: web::Data<ServiceContainer>,
 ) -> impl Responder {
-    app_state.meeting_service.create_meeting(&meeting).await;
+    service_container
+        .meeting_service
+        .create_meeting(&meeting)
+        .await;
     HttpResponse::Ok()
 }
 
-struct AppState {
+struct ServiceContainer {
     meeting_service: MeetingService,
 }
 
@@ -47,7 +50,7 @@ async fn main() -> Result<()> {
         let meeting_service = MeetingService::new(meeting_repository);
 
         App::new()
-            .data(AppState { meeting_service })
+            .data(ServiceContainer { meeting_service })
             .wrap(Logger::default())
             .service(meetings)
             .service(create_meeting)
