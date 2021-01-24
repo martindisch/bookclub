@@ -29,7 +29,7 @@ impl MeetingService {
     }
 
     /// Returns all meetings.
-    pub async fn meetings(&self) -> Vec<Meeting> {
+    pub async fn meetings(&self) -> Vec<MeetingWithId> {
         self.repository.meetings().await
     }
 }
