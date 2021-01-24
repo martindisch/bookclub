@@ -416,7 +416,6 @@ name = "bookclub-api"
 version = "0.1.0"
 dependencies = [
  "actix-web",
- "bson",
  "dotenv",
  "env_logger",
  "futures",

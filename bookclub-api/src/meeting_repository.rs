@@ -1,7 +1,7 @@
 use crate::Meeting;
 
 use futures::StreamExt;
-use mongodb::Collection;
+use mongodb::{bson, Collection};
 
 /// Gives access to the MongoDB collection for meetings.
 pub struct MeetingRepository {

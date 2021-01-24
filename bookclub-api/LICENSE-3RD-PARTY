@@ -5,7 +5,6 @@ applies to:
 - actix-web, Copyright (c) 2017 Actix Team
 - env-logger, Copyright (c) 2014 The Rust Project Developers
 - dotenv, Copyright (c) 2014 Santiago Lapresta and contributors
-- bson, Copyright (c) 2015 Y. T. CHUNG <zonyitoo@gmail.com>
 - serde
 - futures, Copyright (c) 2016 Alex Crichton
            Copyright (c) 2017 The Tokio Authors
