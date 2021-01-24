@@ -5,8 +5,11 @@ use actix_web::{get, post, web, HttpResponse, Responder};
 use crate::{Meeting, ServiceContainer};
 
 #[get("/v1/meetings")]
-async fn meetings() -> impl Responder {
-    HttpResponse::Ok().body("Hello, world!")
+async fn meetings(
+    service_container: web::Data<ServiceContainer>,
+) -> impl Responder {
+    let meetings = service_container.meeting_service.meetings().await;
+    HttpResponse::Ok().json(meetings)
 }
 
 #[post("/v1/meetings")]

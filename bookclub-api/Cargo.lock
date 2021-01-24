@@ -419,6 +419,7 @@ dependencies = [
  "bson",
  "dotenv",
  "env_logger",
+ "futures",
  "mongodb",
  "serde",
 ]

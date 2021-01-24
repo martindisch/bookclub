@@ -15,4 +15,9 @@ impl MeetingService {
     pub async fn create_meeting(&self, meeting: &Meeting) {
         self.repository.insert_meeting(meeting).await;
     }
+
+    /// Returns all meetings.
+    pub async fn meetings(&self) -> Vec<Meeting> {
+        self.repository.meetings().await
+    }
 }
