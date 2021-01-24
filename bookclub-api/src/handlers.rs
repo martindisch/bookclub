@@ -17,9 +17,9 @@ async fn create_meeting(
     meeting: web::Json<Meeting>,
     service_container: web::Data<ServiceContainer>,
 ) -> impl Responder {
-    service_container
+    let meeting_with_id = service_container
         .meeting_service
-        .create_meeting(&meeting)
+        .create_meeting(meeting.into_inner())
         .await;
-    HttpResponse::Ok()
+    HttpResponse::Ok().json(meeting_with_id)
 }

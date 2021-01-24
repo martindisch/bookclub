@@ -21,6 +21,21 @@ pub struct Meeting {
     pub supporters: Vec<String>,
 }
 
+/// A meeting with its ID.
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MeetingWithId {
+    pub id: String,
+    pub date: Option<String>,
+    pub location: Option<String>,
+    pub title: String,
+    pub author: String,
+    pub description: String,
+    pub pitched_by: String,
+    pub first_suggested: String,
+    pub supporters: Vec<String>,
+}
+
 /// Poor man's DI container.
 pub struct ServiceContainer {
     meeting_service: MeetingService,
