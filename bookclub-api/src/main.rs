@@ -1,35 +1,13 @@
-use actix_web::{
-    get, middleware::Logger, post, web, App, HttpResponse, HttpServer,
-    Responder,
-};
+use actix_web::{middleware::Logger, App, HttpServer};
 use dotenv::dotenv;
 use env_logger::{Builder, Env};
 use mongodb::Client;
 
 use std::{env, io::Result};
 
-use bookclub_api::{Meeting, MeetingRepository, MeetingService};
-
-#[get("/v1/meetings")]
-async fn meetings() -> impl Responder {
-    HttpResponse::Ok().body("Hello, world!")
-}
-
-#[post("/v1/meetings")]
-async fn create_meeting(
-    meeting: web::Json<Meeting>,
-    service_container: web::Data<ServiceContainer>,
-) -> impl Responder {
-    service_container
-        .meeting_service
-        .create_meeting(&meeting)
-        .await;
-    HttpResponse::Ok()
-}
-
-struct ServiceContainer {
-    meeting_service: MeetingService,
-}
+use bookclub_api::{
+    handlers, MeetingRepository, MeetingService, ServiceContainer,
+};
 
 #[actix_web::main]
 async fn main() -> Result<()> {
@@ -50,10 +28,10 @@ async fn main() -> Result<()> {
         let meeting_service = MeetingService::new(meeting_repository);
 
         App::new()
-            .data(ServiceContainer { meeting_service })
+            .data(ServiceContainer::new(meeting_service))
             .wrap(Logger::default())
-            .service(meetings)
-            .service(create_meeting)
+            .service(handlers::meetings)
+            .service(handlers::create_meeting)
     })
     .bind("127.0.0.1:8080")?
     .run()
