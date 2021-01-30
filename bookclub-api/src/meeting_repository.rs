@@ -7,6 +7,8 @@ use mongodb::{
 };
 use serde::{Deserialize, Serialize};
 
+use std::{error, fmt};
+
 /// Gives access to the MongoDB collection for meetings.
 pub struct MeetingRepository {
     meetings: Collection,
@@ -22,29 +24,77 @@ impl MeetingRepository {
     pub async fn insert_meeting(
         &self,
         create_meeting: &CreateMeeting,
-    ) -> String {
-        let document = bson::to_document(create_meeting).unwrap();
+    ) -> Result<String, Error> {
+        let document = bson::to_document(create_meeting)?;
         let insert_one_result =
-            self.meetings.insert_one(document, None).await.unwrap();
-        let id = insert_one_result.inserted_id.as_object_id().unwrap();
+            self.meetings.insert_one(document, None).await?;
+        let id = insert_one_result
+            .inserted_id
+            .as_object_id()
+            .ok_or(Error::BadObjectId)?;
 
-        id.to_hex()
+        Ok(id.to_hex())
     }
 
     /// Returns all meetings.
-    pub async fn meetings(&self) -> Vec<Meeting> {
-        let mut cursor = self.meetings.find(None, None).await.unwrap();
+    pub async fn meetings(&self) -> Result<Vec<Meeting>, Error> {
+        let mut cursor = self.meetings.find(None, None).await?;
         let mut meetings = Vec::new();
 
         while let Some(Ok(document)) = cursor.next().await {
-            meetings.push(
-                bson::from_document::<MeetingWithOid>(document)
-                    .unwrap()
-                    .into(),
-            );
+            meetings
+                .push(bson::from_document::<MeetingWithOid>(document)?.into());
         }
 
-        meetings
+        Ok(meetings)
+    }
+}
+
+#[derive(Debug)]
+pub enum Error {
+    Serialization(bson::ser::Error),
+    Deserialization(bson::de::Error),
+    MongoDb(mongodb::error::Error),
+    BadObjectId,
+}
+
+impl From<bson::ser::Error> for Error {
+    fn from(err: bson::ser::Error) -> Self {
+        Self::Serialization(err)
+    }
+}
+
+impl From<bson::de::Error> for Error {
+    fn from(err: bson::de::Error) -> Self {
+        Self::Deserialization(err)
+    }
+}
+
+impl From<mongodb::error::Error> for Error {
+    fn from(err: mongodb::error::Error) -> Self {
+        Self::MongoDb(err)
+    }
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Serialization(e) => e.fmt(f),
+            Self::Deserialization(e) => e.fmt(f),
+            Self::MongoDb(e) => e.fmt(f),
+            Self::BadObjectId => write!(f, "Insert did not return ObjectId"),
+        }
+    }
+}
+
+impl error::Error for Error {
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+        match self {
+            Self::Serialization(ref e) => Some(e),
+            Self::Deserialization(ref e) => Some(e),
+            Self::MongoDb(ref e) => Some(e),
+            Self::BadObjectId => None,
+        }
     }
 }
 
