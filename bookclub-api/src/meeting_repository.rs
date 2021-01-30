@@ -16,16 +16,13 @@ impl MeetingRepository {
     }
 
     /// Inserts a new meeting, returning the ID.
-    pub async fn insert_meeting(
-        &self,
-        meeting: &Meeting,
-    ) -> bson::oid::ObjectId {
+    pub async fn insert_meeting(&self, meeting: &Meeting) -> String {
         let document = bson::to_document(meeting).unwrap();
         let insert_one_result =
             self.meetings.insert_one(document, None).await.unwrap();
         let id = insert_one_result.inserted_id.as_object_id().unwrap();
 
-        id.to_owned()
+        id.to_hex()
     }
 
     /// Returns all meetings.

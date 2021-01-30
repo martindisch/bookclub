@@ -11,12 +11,12 @@ impl MeetingService {
         Self { repository }
     }
 
-    /// Creates a new meeting, returning the ID.
+    /// Creates a new meeting.
     pub async fn create_meeting(&self, meeting: Meeting) -> MeetingWithId {
         let id = self.repository.insert_meeting(&meeting).await;
 
         MeetingWithId {
-            id: id.to_hex(),
+            id,
             date: meeting.date,
             location: meeting.location,
             title: meeting.title,
