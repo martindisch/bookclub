@@ -16,7 +16,7 @@ impl MeetingService {
         let id = self.repository.insert_meeting(&meeting).await;
 
         MeetingWithId {
-            id,
+            id: id.to_hex(),
             date: meeting.date,
             location: meeting.location,
             title: meeting.title,

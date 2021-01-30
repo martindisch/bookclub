@@ -1,4 +1,3 @@
-use mongodb::bson;
 use serde::{Deserialize, Serialize};
 
 pub mod handlers;
@@ -26,8 +25,7 @@ pub struct Meeting {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MeetingWithId {
-    #[serde(rename(deserialize = "_id"))]
-    pub id: bson::oid::ObjectId,
+    pub id: String,
     pub date: Option<String>,
     pub location: Option<String>,
     pub title: String,
