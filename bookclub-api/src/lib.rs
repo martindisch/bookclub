@@ -11,6 +11,7 @@ pub use meeting_service::MeetingService;
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Meeting {
+    pub id: String,
     pub date: Option<String>,
     pub location: Option<String>,
     pub title: String,
@@ -21,11 +22,10 @@ pub struct Meeting {
     pub supporters: Vec<String>,
 }
 
-/// A meeting with its ID.
+/// A request for creating a new meeting.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct MeetingWithId {
-    pub id: String,
+pub struct CreateMeeting {
     pub date: Option<String>,
     pub location: Option<String>,
     pub title: String,

@@ -1,7 +1,10 @@
-use crate::{Meeting, MeetingWithId};
+use crate::{CreateMeeting, Meeting};
 
 use futures::StreamExt;
-use mongodb::{bson, Collection};
+use mongodb::{
+    bson::{self, oid::ObjectId},
+    Collection,
+};
 use serde::{Deserialize, Serialize};
 
 /// Gives access to the MongoDB collection for meetings.
@@ -16,8 +19,11 @@ impl MeetingRepository {
     }
 
     /// Inserts a new meeting, returning the ID.
-    pub async fn insert_meeting(&self, meeting: &Meeting) -> String {
-        let document = bson::to_document(meeting).unwrap();
+    pub async fn insert_meeting(
+        &self,
+        create_meeting: &CreateMeeting,
+    ) -> String {
+        let document = bson::to_document(create_meeting).unwrap();
         let insert_one_result =
             self.meetings.insert_one(document, None).await.unwrap();
         let id = insert_one_result.inserted_id.as_object_id().unwrap();
@@ -26,7 +32,7 @@ impl MeetingRepository {
     }
 
     /// Returns all meetings.
-    pub async fn meetings(&self) -> Vec<MeetingWithId> {
+    pub async fn meetings(&self) -> Vec<Meeting> {
         let mut cursor = self.meetings.find(None, None).await.unwrap();
         let mut meetings = Vec::new();
 
@@ -47,7 +53,7 @@ impl MeetingRepository {
 #[serde(rename_all = "camelCase")]
 pub struct MeetingWithOid {
     #[serde(rename(deserialize = "_id"))]
-    pub id: bson::oid::ObjectId,
+    pub id: ObjectId,
     pub date: Option<String>,
     pub location: Option<String>,
     pub title: String,
@@ -58,9 +64,9 @@ pub struct MeetingWithOid {
     pub supporters: Vec<String>,
 }
 
-impl Into<MeetingWithId> for MeetingWithOid {
-    fn into(self) -> MeetingWithId {
-        MeetingWithId {
+impl Into<Meeting> for MeetingWithOid {
+    fn into(self) -> Meeting {
+        Meeting {
             id: self.id.to_hex(),
             date: self.date,
             location: self.location,

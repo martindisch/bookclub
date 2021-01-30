@@ -2,7 +2,7 @@
 
 use actix_web::{get, post, web, HttpResponse, Responder};
 
-use crate::{Meeting, ServiceContainer};
+use crate::{CreateMeeting, ServiceContainer};
 
 #[get("/v1/meetings")]
 async fn meetings(
@@ -14,12 +14,12 @@ async fn meetings(
 
 #[post("/v1/meetings")]
 async fn create_meeting(
-    meeting: web::Json<Meeting>,
+    create_meeting: web::Json<CreateMeeting>,
     service_container: web::Data<ServiceContainer>,
 ) -> impl Responder {
     let meeting_with_id = service_container
         .meeting_service
-        .create_meeting(meeting.into_inner())
+        .create_meeting(create_meeting.into_inner())
         .await;
     HttpResponse::Ok().json(meeting_with_id)
 }

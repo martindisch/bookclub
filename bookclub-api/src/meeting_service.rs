@@ -1,4 +1,4 @@
-use crate::{meeting_repository::MeetingRepository, Meeting, MeetingWithId};
+use crate::{meeting_repository::MeetingRepository, CreateMeeting, Meeting};
 
 /// Represents the meetings domain.
 pub struct MeetingService {
@@ -12,24 +12,27 @@ impl MeetingService {
     }
 
     /// Creates a new meeting.
-    pub async fn create_meeting(&self, meeting: Meeting) -> MeetingWithId {
-        let id = self.repository.insert_meeting(&meeting).await;
+    pub async fn create_meeting(
+        &self,
+        create_meeting: CreateMeeting,
+    ) -> Meeting {
+        let id = self.repository.insert_meeting(&create_meeting).await;
 
-        MeetingWithId {
+        Meeting {
             id,
-            date: meeting.date,
-            location: meeting.location,
-            title: meeting.title,
-            author: meeting.author,
-            description: meeting.description,
-            pitched_by: meeting.pitched_by,
-            first_suggested: meeting.first_suggested,
-            supporters: meeting.supporters,
+            date: create_meeting.date,
+            location: create_meeting.location,
+            title: create_meeting.title,
+            author: create_meeting.author,
+            description: create_meeting.description,
+            pitched_by: create_meeting.pitched_by,
+            first_suggested: create_meeting.first_suggested,
+            supporters: create_meeting.supporters,
         }
     }
 
     /// Returns all meetings.
-    pub async fn meetings(&self) -> Vec<MeetingWithId> {
+    pub async fn meetings(&self) -> Vec<Meeting> {
         self.repository.meetings().await
     }
 }
