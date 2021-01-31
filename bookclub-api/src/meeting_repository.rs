@@ -44,18 +44,19 @@ impl MeetingRepository {
         let mut meetings = Vec::new();
 
         while let Some(Ok(document)) = cursor.next().await {
-            meetings
-                .push(bson::from_document::<MeetingWithOid>(document)?.into());
+            meetings.push(
+                bson::from_document::<MeetingDocument>(document)?.into(),
+            );
         }
 
         Ok(meetings)
     }
 }
 
-/// A meeting with its ID as it is stored in MongoDB.
+/// A meeting as it is stored in MongoDB.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct MeetingWithOid {
+struct MeetingDocument {
     #[serde(rename(deserialize = "_id"))]
     id: ObjectId,
     date: Option<String>,
@@ -68,7 +69,7 @@ struct MeetingWithOid {
     supporters: Vec<String>,
 }
 
-impl Into<Meeting> for MeetingWithOid {
+impl Into<Meeting> for MeetingDocument {
     fn into(self) -> Meeting {
         Meeting {
             id: self.id.to_hex(),
