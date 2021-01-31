@@ -50,6 +50,7 @@ impl MeetingRepository {
     }
 }
 
+/// The error type wrapping what can go wrong in the repository.
 #[derive(Debug)]
 pub enum Error {
     Serialization(bson::ser::Error),
