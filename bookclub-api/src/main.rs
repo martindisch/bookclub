@@ -6,7 +6,8 @@ use mongodb::Client;
 use std::{env, io::Result};
 
 use bookclub_api::{
-    handlers, MeetingRepository, MeetingService, ServiceContainer,
+    handlers, meeting_repository::MeetingRepository,
+    meeting_service::MeetingService, ServiceContainer,
 };
 
 #[actix_web::main]

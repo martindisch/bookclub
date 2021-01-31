@@ -1,11 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-pub mod handlers;
-mod meeting_repository;
-mod meeting_service;
+use crate::meeting_service::MeetingService;
 
-pub use meeting_repository::MeetingRepository;
-pub use meeting_service::{Error, MeetingService};
+pub mod handlers;
+pub mod meeting_repository;
+pub mod meeting_service;
 
 /// A meeting.
 #[derive(Debug, Serialize, Deserialize)]

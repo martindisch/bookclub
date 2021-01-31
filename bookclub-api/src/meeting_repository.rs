@@ -1,3 +1,5 @@
+//! Contains data-access logic.
+
 use futures::StreamExt;
 use mongodb::{
     bson::{self, oid::ObjectId},

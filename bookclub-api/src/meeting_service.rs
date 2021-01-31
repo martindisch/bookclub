@@ -1,3 +1,5 @@
+//! Contains domain logic.
+
 use std::{error, fmt};
 
 use crate::{
