@@ -1,5 +1,3 @@
-use crate::{CreateMeeting, Meeting};
-
 use futures::StreamExt;
 use mongodb::{
     bson::{self, oid::ObjectId},
@@ -8,6 +6,8 @@ use mongodb::{
 use serde::{Deserialize, Serialize};
 
 use std::{error, fmt};
+
+use crate::{CreateMeeting, Meeting};
 
 /// Gives access to the MongoDB collection for meetings.
 pub struct MeetingRepository {
@@ -47,6 +47,38 @@ impl MeetingRepository {
         }
 
         Ok(meetings)
+    }
+}
+
+/// A meeting with its ID as it is stored in MongoDB.
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct MeetingWithOid {
+    #[serde(rename(deserialize = "_id"))]
+    id: ObjectId,
+    date: Option<String>,
+    location: Option<String>,
+    title: String,
+    author: String,
+    description: String,
+    pitched_by: String,
+    first_suggested: String,
+    supporters: Vec<String>,
+}
+
+impl Into<Meeting> for MeetingWithOid {
+    fn into(self) -> Meeting {
+        Meeting {
+            id: self.id.to_hex(),
+            date: self.date,
+            location: self.location,
+            title: self.title,
+            author: self.author,
+            description: self.description,
+            pitched_by: self.pitched_by,
+            first_suggested: self.first_suggested,
+            supporters: self.supporters,
+        }
     }
 }
 
@@ -95,38 +127,6 @@ impl error::Error for Error {
             Self::Deserialization(ref e) => Some(e),
             Self::MongoDb(ref e) => Some(e),
             Self::BadObjectId => None,
-        }
-    }
-}
-
-/// A meeting with its ID as it is stored in MongoDB.
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct MeetingWithOid {
-    #[serde(rename(deserialize = "_id"))]
-    id: ObjectId,
-    date: Option<String>,
-    location: Option<String>,
-    title: String,
-    author: String,
-    description: String,
-    pitched_by: String,
-    first_suggested: String,
-    supporters: Vec<String>,
-}
-
-impl Into<Meeting> for MeetingWithOid {
-    fn into(self) -> Meeting {
-        Meeting {
-            id: self.id.to_hex(),
-            date: self.date,
-            location: self.location,
-            title: self.title,
-            author: self.author,
-            description: self.description,
-            pitched_by: self.pitched_by,
-            first_suggested: self.first_suggested,
-            supporters: self.supporters,
         }
     }
 }
