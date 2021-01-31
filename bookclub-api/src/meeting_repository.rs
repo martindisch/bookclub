@@ -102,17 +102,17 @@ impl error::Error for Error {
 /// A meeting with its ID as it is stored in MongoDB.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct MeetingWithOid {
+struct MeetingWithOid {
     #[serde(rename(deserialize = "_id"))]
-    pub id: ObjectId,
-    pub date: Option<String>,
-    pub location: Option<String>,
-    pub title: String,
-    pub author: String,
-    pub description: String,
-    pub pitched_by: String,
-    pub first_suggested: String,
-    pub supporters: Vec<String>,
+    id: ObjectId,
+    date: Option<String>,
+    location: Option<String>,
+    title: String,
+    author: String,
+    description: String,
+    pitched_by: String,
+    first_suggested: String,
+    supporters: Vec<String>,
 }
 
 impl Into<Meeting> for MeetingWithOid {
