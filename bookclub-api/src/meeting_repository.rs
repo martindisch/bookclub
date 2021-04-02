@@ -2,7 +2,7 @@
 
 use futures::StreamExt;
 use mongodb::{
-    bson::{self, oid::ObjectId},
+    bson::{self, oid::ObjectId, Bson, DateTime},
     Collection,
 };
 use serde::{Deserialize, Serialize};
@@ -27,7 +27,23 @@ impl MeetingRepository {
         &self,
         create_meeting: &CreateMeeting,
     ) -> Result<String, Error> {
-        let document = bson::to_document(create_meeting)?;
+        let mut document = bson::to_document(create_meeting)?;
+
+        // Sadly we need to replace DateTime<Utc> with the DateTime wrapper,
+        // because DateTime<Utc> is serialized to String, whereas we want the
+        // native BSON datetime type in the DB
+        document.insert(
+            "firstSuggested",
+            Bson::DateTime(create_meeting.first_suggested),
+        );
+        document.insert(
+            "date",
+            create_meeting
+                .date
+                .map(Bson::DateTime)
+                .unwrap_or(Bson::Null),
+        );
+
         let insert_one_result =
             self.meetings.insert_one(document, None).await?;
         let id = insert_one_result
@@ -59,13 +75,13 @@ impl MeetingRepository {
 struct MeetingDocument {
     #[serde(rename(deserialize = "_id"))]
     id: ObjectId,
-    date: Option<String>,
+    date: Option<DateTime>,
     location: Option<String>,
     title: String,
     author: String,
     description: String,
     pitched_by: String,
-    first_suggested: String,
+    first_suggested: DateTime,
     supporters: Vec<String>,
 }
 
@@ -73,13 +89,13 @@ impl Into<Meeting> for MeetingDocument {
     fn into(self) -> Meeting {
         Meeting {
             id: self.id.to_hex(),
-            date: self.date,
+            date: self.date.map(DateTime::into),
             location: self.location,
             title: self.title,
             author: self.author,
             description: self.description,
             pitched_by: self.pitched_by,
-            first_suggested: self.first_suggested,
+            first_suggested: self.first_suggested.into(),
             supporters: self.supporters,
         }
     }

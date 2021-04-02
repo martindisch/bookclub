@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::meeting_service::MeetingService;
@@ -11,13 +12,13 @@ pub mod meeting_service;
 #[serde(rename_all = "camelCase")]
 pub struct Meeting {
     pub id: String,
-    pub date: Option<String>,
+    pub date: Option<DateTime<Utc>>,
     pub location: Option<String>,
     pub title: String,
     pub author: String,
     pub description: String,
     pub pitched_by: String,
-    pub first_suggested: String,
+    pub first_suggested: DateTime<Utc>,
     pub supporters: Vec<String>,
 }
 
@@ -25,13 +26,13 @@ pub struct Meeting {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateMeeting {
-    pub date: Option<String>,
+    pub date: Option<DateTime<Utc>>,
     pub location: Option<String>,
     pub title: String,
     pub author: String,
     pub description: String,
     pub pitched_by: String,
-    pub first_suggested: String,
+    pub first_suggested: DateTime<Utc>,
     pub supporters: Vec<String>,
 }
 
