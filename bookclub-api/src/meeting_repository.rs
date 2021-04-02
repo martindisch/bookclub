@@ -85,6 +85,7 @@ struct MeetingDocument {
     supporters: Vec<String>,
 }
 
+#[allow(clippy::from_over_into)]
 impl Into<Meeting> for MeetingDocument {
     fn into(self) -> Meeting {
         Meeting {
