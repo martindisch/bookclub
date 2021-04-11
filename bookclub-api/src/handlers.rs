@@ -22,11 +22,11 @@ async fn create_meeting(
     create_meeting: web::Json<CreateMeeting>,
     service_container: web::Data<ServiceContainer>,
 ) -> Result<impl Responder, Error> {
-    let meeting_with_id = service_container
+    let meeting = service_container
         .meeting_service
         .create_meeting(create_meeting.into_inner())
         .await?;
-    Ok(HttpResponse::Ok().json(meeting_with_id))
+    Ok(HttpResponse::Ok().json(meeting))
 }
 
 #[patch("/v1/meetings/{id}")]
