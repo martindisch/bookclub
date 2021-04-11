@@ -2,9 +2,10 @@
 
 use actix_web::{
     dev::HttpResponseBuilder, error::ResponseError, get, http::StatusCode,
-    post, web, HttpResponse, Responder,
+    patch, post, web, HttpResponse, Responder,
 };
-use serde::Serialize;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 use crate::{meeting_service::Error, CreateMeeting, ServiceContainer};
 
@@ -26,6 +27,20 @@ async fn create_meeting(
         .create_meeting(create_meeting.into_inner())
         .await?;
     Ok(HttpResponse::Ok().json(meeting_with_id))
+}
+
+#[patch("/v1/meetings/{id}")]
+async fn update_meeting(
+    info: web::Path<String>,
+    update_meeting_request: web::Json<UpdateMeetingRequest>,
+    service_container: web::Data<ServiceContainer>,
+) -> Result<impl Responder, Error> {
+    println!(
+        "Got ID {} and title {}",
+        info,
+        update_meeting_request.into_inner().title.unwrap()
+    );
+    Ok(HttpResponse::Ok())
 }
 
 impl ResponseError for Error {
@@ -52,4 +67,18 @@ impl ResponseError for Error {
 struct ErrorResponse {
     status_code: u16,
     message: String,
+}
+
+/// An API request for updating a meeting.
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateMeetingRequest {
+    pub date: Option<DateTime<Utc>>,
+    pub location: Option<String>,
+    pub title: Option<String>,
+    pub author: Option<String>,
+    pub description: Option<String>,
+    pub pitched_by: Option<String>,
+    pub first_suggested: Option<DateTime<Utc>>,
+    pub supporters: Option<Vec<String>>,
 }

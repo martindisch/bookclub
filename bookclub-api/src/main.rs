@@ -33,6 +33,7 @@ async fn main() -> Result<()> {
             .wrap(Logger::default())
             .service(handlers::meetings)
             .service(handlers::create_meeting)
+            .service(handlers::update_meeting)
     })
     .bind("127.0.0.1:8080")?
     .run()

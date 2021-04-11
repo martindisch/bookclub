@@ -36,6 +36,20 @@ pub struct CreateMeeting {
     pub supporters: Vec<String>,
 }
 
+/// A request for updating a meeting.
+#[derive(Debug)]
+pub struct UpdateMeeting {
+    pub id: String,
+    pub date: Option<DateTime<Utc>>,
+    pub location: Option<String>,
+    pub title: Option<String>,
+    pub author: Option<String>,
+    pub description: Option<String>,
+    pub pitched_by: Option<String>,
+    pub first_suggested: Option<DateTime<Utc>>,
+    pub supporters: Option<Vec<String>>,
+}
+
 /// Poor man's DI container.
 pub struct ServiceContainer {
     meeting_service: MeetingService,
