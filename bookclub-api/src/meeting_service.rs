@@ -4,7 +4,7 @@ use std::{error, fmt};
 
 use crate::{
     meeting_repository::{Error as RepositoryError, MeetingRepository},
-    CreateMeeting, Meeting,
+    CreateMeeting, Meeting, UpdateMeeting,
 };
 
 /// Represents the meetings domain.
@@ -38,6 +38,14 @@ impl MeetingService {
         })
     }
 
+    /// Updates a meeting.
+    pub async fn update_meeting(
+        &self,
+        update_meeting: UpdateMeeting,
+    ) -> Result<Meeting, Error> {
+        Ok(self.repository.update_meeting(update_meeting).await?)
+    }
+
     /// Returns all meetings.
     pub async fn meetings(&self) -> Result<Vec<Meeting>, Error> {
         Ok(self.repository.meetings().await?)
@@ -48,12 +56,16 @@ impl MeetingService {
 #[derive(Debug)]
 pub enum Error {
     Internal(RepositoryError),
-    User,
+    User(String),
 }
 
 impl From<RepositoryError> for Error {
     fn from(err: RepositoryError) -> Self {
-        Self::Internal(err)
+        match err {
+            RepositoryError::NoSuchMeeting => Self::User(err.to_string()),
+            RepositoryError::ObjectId(_) => Self::User(err.to_string()),
+            err => Self::Internal(err),
+        }
     }
 }
 
@@ -61,7 +73,7 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::Internal(_) => write!(f, "An internal error occurred"),
-            Self::User => write!(f, "User error (TBD)"),
+            Self::User(message) => write!(f, "{}", message),
         }
     }
 }
@@ -70,7 +82,7 @@ impl error::Error for Error {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         match self {
             Self::Internal(ref e) => Some(e),
-            Self::User => None,
+            Self::User(_) => None,
         }
     }
 }

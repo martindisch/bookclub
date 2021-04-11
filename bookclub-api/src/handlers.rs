@@ -7,7 +7,9 @@ use actix_web::{
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::{meeting_service::Error, CreateMeeting, ServiceContainer};
+use crate::{
+    meeting_service::Error, CreateMeeting, ServiceContainer, UpdateMeeting,
+};
 
 #[get("/v1/meetings")]
 async fn meetings(
@@ -35,12 +37,12 @@ async fn update_meeting(
     update_meeting_request: web::Json<UpdateMeetingRequest>,
     service_container: web::Data<ServiceContainer>,
 ) -> Result<impl Responder, Error> {
-    println!(
-        "Got ID {} and title {}",
-        info,
-        update_meeting_request.into_inner().title.unwrap()
-    );
-    Ok(HttpResponse::Ok())
+    let update_meeting_request = update_meeting_request.into_inner();
+    let meeting = service_container
+        .meeting_service
+        .update_meeting((update_meeting_request, info.into_inner()).into())
+        .await?;
+    Ok(HttpResponse::Ok().json(meeting))
 }
 
 impl ResponseError for Error {
@@ -56,7 +58,7 @@ impl ResponseError for Error {
     fn status_code(&self) -> StatusCode {
         match self {
             Self::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::User => StatusCode::BAD_REQUEST,
+            Self::User(_) => StatusCode::BAD_REQUEST,
         }
     }
 }
@@ -81,4 +83,21 @@ pub struct UpdateMeetingRequest {
     pub pitched_by: Option<String>,
     pub first_suggested: Option<DateTime<Utc>>,
     pub supporters: Option<Vec<String>>,
+}
+
+#[allow(clippy::from_over_into)]
+impl Into<UpdateMeeting> for (UpdateMeetingRequest, String) {
+    fn into(self) -> UpdateMeeting {
+        UpdateMeeting {
+            id: self.1,
+            date: self.0.date,
+            location: self.0.location,
+            title: self.0.title,
+            author: self.0.author,
+            description: self.0.description,
+            pitched_by: self.0.pitched_by,
+            first_suggested: self.0.first_suggested,
+            supporters: self.0.supporters,
+        }
+    }
 }

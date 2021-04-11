@@ -2,14 +2,15 @@
 
 use futures::StreamExt;
 use mongodb::{
-    bson::{self, oid::ObjectId, Bson, DateTime},
+    bson::{self, doc, oid::ObjectId, Bson, DateTime, Document},
+    options::{FindOneAndUpdateOptions, ReturnDocument},
     Collection,
 };
 use serde::{Deserialize, Serialize};
 
 use std::{error, fmt};
 
-use crate::{CreateMeeting, Meeting};
+use crate::{CreateMeeting, Meeting, UpdateMeeting};
 
 /// Gives access to the MongoDB collection for meetings.
 pub struct MeetingRepository {
@@ -52,6 +53,28 @@ impl MeetingRepository {
             .ok_or(Error::BadObjectId)?;
 
         Ok(id.to_hex())
+    }
+
+    /// Updates a meeting and returns the new one.
+    pub async fn update_meeting(
+        &self,
+        update_meeting: UpdateMeeting,
+    ) -> Result<Meeting, Error> {
+        let updated_document = self
+            .meetings
+            .find_one_and_update(
+                doc! {"_id": ObjectId::with_string(&update_meeting.id)?},
+                build_update(update_meeting),
+                FindOneAndUpdateOptions::builder()
+                    .return_document(Some(ReturnDocument::After))
+                    .build(),
+            )
+            .await?
+            .ok_or(Error::NoSuchMeeting)?;
+        let updated_meeting: Meeting =
+            bson::from_document::<MeetingDocument>(updated_document)?.into();
+
+        Ok(updated_meeting)
     }
 
     /// Returns all meetings.
@@ -107,8 +130,10 @@ impl Into<Meeting> for MeetingDocument {
 pub enum Error {
     Serialization(bson::ser::Error),
     Deserialization(bson::de::Error),
+    ObjectId(bson::oid::Error),
     MongoDb(mongodb::error::Error),
     BadObjectId,
+    NoSuchMeeting,
 }
 
 impl From<bson::ser::Error> for Error {
@@ -123,6 +148,12 @@ impl From<bson::de::Error> for Error {
     }
 }
 
+impl From<bson::oid::Error> for Error {
+    fn from(err: bson::oid::Error) -> Self {
+        Self::ObjectId(err)
+    }
+}
+
 impl From<mongodb::error::Error> for Error {
     fn from(err: mongodb::error::Error) -> Self {
         Self::MongoDb(err)
@@ -134,8 +165,10 @@ impl fmt::Display for Error {
         match self {
             Self::Serialization(e) => e.fmt(f),
             Self::Deserialization(e) => e.fmt(f),
+            Self::ObjectId(_) => write!(f, "Invalid ID"),
             Self::MongoDb(e) => e.fmt(f),
             Self::BadObjectId => write!(f, "Insert did not return ObjectId"),
+            Self::NoSuchMeeting => write!(f, "Meeting does not exist"),
         }
     }
 }
@@ -145,8 +178,44 @@ impl error::Error for Error {
         match self {
             Self::Serialization(ref e) => Some(e),
             Self::Deserialization(ref e) => Some(e),
+            Self::ObjectId(ref e) => Some(e),
             Self::MongoDb(ref e) => Some(e),
             Self::BadObjectId => None,
+            Self::NoSuchMeeting => None,
         }
     }
+}
+
+/// Builds the MongoDB documents representing the update.
+fn build_update(update_meeting: UpdateMeeting) -> Vec<Document> {
+    let mut updates = Vec::new();
+
+    // This is dumb. We could probably do something with serde to automatically
+    // turn it into a Document.
+    if let Some(value) = update_meeting.date {
+        updates.push(doc! {"$set": {"date": value}})
+    }
+    if let Some(value) = update_meeting.location {
+        updates.push(doc! {"$set": {"location": value}})
+    }
+    if let Some(value) = update_meeting.title {
+        updates.push(doc! {"$set": {"title": value}})
+    }
+    if let Some(value) = update_meeting.author {
+        updates.push(doc! {"$set": {"author": value}})
+    }
+    if let Some(value) = update_meeting.description {
+        updates.push(doc! {"$set": {"description": value}})
+    }
+    if let Some(value) = update_meeting.pitched_by {
+        updates.push(doc! {"$set": {"pitchedBy": value}})
+    }
+    if let Some(value) = update_meeting.first_suggested {
+        updates.push(doc! {"$set": {"firstSuggested": value}})
+    }
+    if let Some(value) = update_meeting.supporters {
+        updates.push(doc! {"$set": {"supporters": value}})
+    }
+
+    updates
 }
