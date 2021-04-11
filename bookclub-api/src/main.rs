@@ -17,10 +17,10 @@ async fn main() -> Result<()> {
     Builder::from_env(Env::default().default_filter_or("info")).init();
 
     let client = Client::with_uri_str(
-        &env::var("MONGODB").expect("MONGODB env var not set"),
+        &env::var("MONGODB").expect("MONGODB env var not set."),
     )
     .await
-    .expect("Can't establish connection to MongoDB");
+    .expect("Can't establish connection to MongoDB.");
     let database = client.database("bookclub");
     let collection = database.collection("meetings");
 

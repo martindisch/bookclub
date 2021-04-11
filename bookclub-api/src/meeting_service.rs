@@ -72,7 +72,7 @@ impl From<RepositoryError> for Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Internal(_) => write!(f, "An internal error occurred"),
+            Self::Internal(_) => write!(f, "An internal error occurred."),
             Self::User(message) => write!(f, "{}", message),
         }
     }

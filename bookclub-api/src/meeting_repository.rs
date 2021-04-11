@@ -165,10 +165,10 @@ impl fmt::Display for Error {
         match self {
             Self::Serialization(e) => e.fmt(f),
             Self::Deserialization(e) => e.fmt(f),
-            Self::ObjectId(_) => write!(f, "Invalid ID"),
+            Self::ObjectId(_) => write!(f, "Invalid ID."),
             Self::MongoDb(e) => e.fmt(f),
-            Self::BadObjectId => write!(f, "Insert did not return ObjectId"),
-            Self::NoSuchMeeting => write!(f, "Meeting does not exist"),
+            Self::BadObjectId => write!(f, "Insert did not return ObjectId."),
+            Self::NoSuchMeeting => write!(f, "Meeting does not exist."),
         }
     }
 }
