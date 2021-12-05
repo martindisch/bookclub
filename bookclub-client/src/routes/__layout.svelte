@@ -2,4 +2,4 @@
   import "virtual:windi.css";
 </script>
 
-<slot />
+<div class="h-screen bg-gray-900 p-4 text-gray-100"><slot /></div>
