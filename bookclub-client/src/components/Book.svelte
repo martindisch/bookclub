@@ -8,10 +8,20 @@
   export let supporters: string[];
 </script>
 
-<h1>{title}</h1>
-<p>{author}</p>
-<p>{description}</p>
-<p>{pageCount}</p>
-<p>{pitchBy}</p>
-<p>{firstSuggested}</p>
-<p>{supporters}</p>
+<div class="bg-gray-500 rounded-xl p-6">
+  <h1 class="text-2xl">{title}</h1>
+  <p class="mb-4">{author}</p>
+
+  <p class="mb-4">{description}</p>
+
+  <div class="grid grid-cols-2">
+    <p>Page count</p>
+    <p>{pageCount}</p>
+    <p>Pitch by</p>
+    <p>{pitchBy}</p>
+    <p>First suggested</p>
+    <p>{firstSuggested.toLocaleDateString()}</p>
+    <p>Supporters</p>
+    <p>{supporters.join(", ")}</p>
+  </div>
+</div>
