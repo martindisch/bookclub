@@ -12,7 +12,7 @@
   <h1 class="text-2xl">{title}</h1>
   <p class="mb-4">{author}</p>
 
-  <p class="mb-4">{description}</p>
+  <p class="mb-4 hyphens-auto text-justify">{description}</p>
 
   <div class="grid grid-cols-2">
     <p>Page count</p>
