@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Button from "./Button.svelte";
+
   export let title: string;
   export let author: string;
   export let description: string;
@@ -18,10 +20,7 @@
     <p>Page count</p>
     <p>{pageCount}</p>
     <div class="row-span-4 flex justify-end items-end">
-      <button
-        class="bg-green-700 hover:bg-green-800 active:bg-green-700 py-2 px-8 rounded-md shadow focus:outline-none"
-        >Vote</button
-      >
+      <Button text="Vote" />
     </div>
     <p>Pitch by</p>
     <p>{pitchBy}</p>
