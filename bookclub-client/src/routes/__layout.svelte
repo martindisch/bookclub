@@ -2,6 +2,6 @@
   import "virtual:windi.css";
 </script>
 
-<div class="h-screen bg-gray-900 p-4 text-gray-100 flex justify-center">
+<div class="h-full bg-gray-900 p-4 text-gray-100 flex justify-center">
   <div class="max-w-screen-md"><slot /></div>
 </div>
