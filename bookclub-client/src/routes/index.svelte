@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import Book from "../components/Book.svelte";
   import List from "../components/List.svelte";
 </script>
