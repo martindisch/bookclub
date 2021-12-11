@@ -1,5 +1,6 @@
 <script lang="ts" context="module">
   import type { Load } from "@sveltejs/kit";
+  import BookForm from "../../components/BookForm.svelte";
 
   export const load: Load = async ({ page, fetch }) => {
     const res = await fetch("https://jsonplaceholder.typicode.com/todos/1");
@@ -25,5 +26,4 @@
   export let title: string;
 </script>
 
-<h1>{title}</h1>
-<p>Here we go with ID {id}</p>
+<BookForm />
