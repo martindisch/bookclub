@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Card from "./Card.svelte";
   import Button from "./Button.svelte";
 
   export let title: string;
@@ -10,7 +11,7 @@
   export let supporters: string[];
 </script>
 
-<div class="bg-gray-500 rounded-xl p-6">
+<Card>
   <h1 class="text-2xl">{title}</h1>
   <p class="mb-4">{author}</p>
 
@@ -29,4 +30,4 @@
     <p>Supporters</p>
     <p>{supporters.join(", ")}</p>
   </div>
-</div>
+</Card>
