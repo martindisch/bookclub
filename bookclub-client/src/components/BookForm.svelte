@@ -1,7 +1,6 @@
 <script lang="ts">
   import Card from "./Card.svelte";
   import Input from "./Input.svelte";
-  import List from "./List.svelte";
   import Button from "./Button.svelte";
 
   export let title: string | null = null;
@@ -14,14 +13,16 @@
 </script>
 
 <Card>
-  <form on:submit|preventDefault={done}>
-    <List>
-      <Input label="Title" id="title" />
-      <Input label="Author" id="author" />
+  <form on:submit|preventDefault={done} class="grid gap-4 sm:grid-cols-2">
+    <Input label="Title" id="title" />
+    <Input label="Author" id="author" />
+    <div class="col-span-full">
       <Input label="Description" id="description" rows={5} />
-      <Input label="Page count" id="pageCount" />
-      <Input label="Pitch by" id="pitchBy" />
-      <div class="place-self-end mt-2"><Button text="Save" /></div>
-    </List>
+    </div>
+    <Input label="Page count" id="pageCount" />
+    <Input label="Pitch by" id="pitchBy" />
+    <div class="col-span-full place-self-end mt-2">
+      <Button text="Save" />
+    </div>
   </form>
 </Card>
