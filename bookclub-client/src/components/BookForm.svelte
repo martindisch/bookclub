@@ -16,7 +16,7 @@
     <List>
       <Input label="Title" id="title" />
       <Input label="Author" id="author" />
-      <Input label="Description" id="description" />
+      <Input label="Description" id="description" rows={5} />
       <Input label="Page count" id="pageCount" />
       <Input label="Pitch by" id="pitchBy" />
     </List>
