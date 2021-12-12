@@ -15,11 +15,11 @@
   import InputNumber from "./InputNumber.svelte";
   import Button from "./Button.svelte";
 
-  export let title: string = "";
-  export let author: string = "";
-  export let description: string = "";
+  export let title = "";
+  export let author = "";
+  export let description = "";
   export let pageCount: number | null = null;
-  export let pitchBy: string = "";
+  export let pitchBy = "";
   export let onSave: (book: Book) => void;
 
   const save = () => {
