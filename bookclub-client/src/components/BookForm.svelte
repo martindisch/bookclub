@@ -1,3 +1,13 @@
+<script lang="ts" context="module">
+  export interface Book {
+    title: string;
+    author: string;
+    description: string;
+    pageCount: number;
+    pitchBy: string;
+  }
+</script>
+
 <script lang="ts">
   import Card from "./Card.svelte";
   import InputText from "./InputText.svelte";
@@ -5,24 +15,29 @@
   import InputNumber from "./InputNumber.svelte";
   import Button from "./Button.svelte";
 
-  export let title: string | null = null;
-  export let author: string | null = null;
-  export let description: string | null = null;
+  export let title: string = "";
+  export let author: string = "";
+  export let description: string = "";
   export let pageCount: number | null = null;
-  export let pitchBy: string | null = null;
+  export let pitchBy: string = "";
+  export let onSave: (book: Book) => void;
 
-  const done = () => alert("Myello");
+  const save = () => {
+    if (pageCount !== null) {
+      onSave({ title, author, description, pageCount, pitchBy });
+    }
+  };
 </script>
 
 <Card>
-  <form on:submit|preventDefault={done} class="grid gap-4 sm:grid-cols-2">
-    <InputText label="Title" id="title" />
-    <InputText label="Author" id="author" />
+  <form on:submit|preventDefault={save} class="grid gap-4 sm:grid-cols-2">
+    <InputText label="Title" id="title" bind:value={title} />
+    <InputText label="Author" id="author" bind:value={author} />
     <div class="col-span-full">
-      <InputTextArea label="Description" id="description" rows={5} />
+      <InputTextArea label="Description" id="description" rows={5} bind:value={description} />
     </div>
-    <InputNumber label="Page count" id="pageCount" />
-    <InputText label="Pitch by" id="pitchBy" />
+    <InputNumber label="Page count" id="pageCount" bind:value={pageCount} />
+    <InputText label="Pitch by" id="pitchBy" bind:value={pitchBy} />
     <div class="col-span-full place-self-end mt-2">
       <Button text="Save" />
     </div>
