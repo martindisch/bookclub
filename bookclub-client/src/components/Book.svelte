@@ -9,6 +9,7 @@
   export let pitchBy: string;
   export let firstSuggested: Date;
   export let supporters: string[];
+  export let onVote: () => void;
 </script>
 
 <Card>
@@ -21,7 +22,7 @@
     <p>Page count</p>
     <p>{pageCount}</p>
     <div class="row-span-4 flex justify-end items-end">
-      <Button text="Vote" />
+      <Button text="Vote" on:click={onVote} />
     </div>
     <p>Pitch by</p>
     <p>{pitchBy}</p>

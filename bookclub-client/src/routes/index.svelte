@@ -1,6 +1,8 @@
 <script lang="ts">
   import Book from "../components/Book.svelte";
   import List from "../components/List.svelte";
+
+  const vote = () => alert("Voted for a book");
 </script>
 
 <List>
@@ -12,6 +14,7 @@
     pitchBy="Martin"
     firstSuggested={new Date("2021-12-05T16:53:25Z")}
     supporters={["Martin", "Alice", "Bob"]}
+    onVote={vote}
   />
   <Book
     title="Goodbye and thanks for all the fish"
@@ -21,6 +24,7 @@
     pitchBy="Alice"
     firstSuggested={new Date("2021-12-05T16:53:25Z")}
     supporters={["Alice"]}
+    onVote={vote}
   />
   <Book
     title="A brief history of nothing"
@@ -30,5 +34,6 @@
     pitchBy="Bob"
     firstSuggested={new Date("2021-12-05T16:53:25Z")}
     supporters={["Bob", "Alice"]}
+    onVote={vote}
   />
 </List>
