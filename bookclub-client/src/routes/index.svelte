@@ -1,6 +1,7 @@
 <script lang="ts">
   import Book from "../components/Book.svelte";
   import List from "../components/List.svelte";
+  import Button from "../components/Button.svelte";
 
   const vote = () => alert("Voted for a book");
 </script>
@@ -37,3 +38,4 @@
     onVote={vote}
   />
 </List>
+<Button text="+" rounded={true} />
