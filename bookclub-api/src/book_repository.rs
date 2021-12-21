@@ -2,7 +2,7 @@
 
 use futures::StreamExt;
 use mongodb::{
-    bson::{self, doc, oid::ObjectId, Bson, DateTime, Document},
+    bson::{self, doc, oid::ObjectId, DateTime, Document},
     options::{FindOneAndUpdateOptions, ReturnDocument},
     Collection,
 };
@@ -10,40 +10,35 @@ use serde::{Deserialize, Serialize};
 
 use std::{error, fmt};
 
-use crate::{CreateMeeting, Meeting, UpdateMeeting};
+use crate::{Book, CreateBook, UpdateBook};
 
-/// Gives access to the MongoDB collection for meetings.
-pub struct MeetingRepository {
-    meetings: Collection<Document>,
+/// Gives access to the MongoDB collection for books.
+pub struct BookRepository {
+    books: Collection<Document>,
 }
 
-impl MeetingRepository {
+impl BookRepository {
     /// Creates a new repository.
-    pub fn new(meetings: Collection<Document>) -> Self {
-        Self { meetings }
+    pub fn new(books: Collection<Document>) -> Self {
+        Self { books }
     }
 
-    /// Inserts a new meeting, returning the ID.
-    pub async fn insert_meeting(
+    /// Inserts a new book, returning the ID.
+    pub async fn insert_book(
         &self,
-        create_meeting: &CreateMeeting,
+        create_book: &CreateBook,
     ) -> Result<String, Error> {
-        let mut document = bson::to_document(create_meeting)?;
+        let mut document = bson::to_document(create_book)?;
 
         // Sadly we need to replace DateTime<Utc> with the DateTime wrapper,
         // because DateTime<Utc> is serialized to String, whereas we want the
         // native BSON datetime type in the DB
         document.insert(
             "firstSuggested",
-            bson::DateTime::from(create_meeting.first_suggested),
-        );
-        document.insert(
-            "date",
-            create_meeting.date.map(Into::into).unwrap_or(Bson::Null),
+            bson::DateTime::from(create_book.first_suggested),
         );
 
-        let insert_one_result =
-            self.meetings.insert_one(document, None).await?;
+        let insert_one_result = self.books.insert_one(document, None).await?;
         let id = insert_one_result
             .inserted_id
             .as_object_id()
@@ -52,70 +47,66 @@ impl MeetingRepository {
         Ok(id.to_hex())
     }
 
-    /// Updates a meeting and returns the new one.
-    pub async fn update_meeting(
+    /// Updates a book and returns the new one.
+    pub async fn update_book(
         &self,
-        update_meeting: UpdateMeeting,
-    ) -> Result<Meeting, Error> {
+        update_book: UpdateBook,
+    ) -> Result<Book, Error> {
         let updated_document = self
-            .meetings
+            .books
             .find_one_and_update(
-                doc! {"_id": ObjectId::parse_str(&update_meeting.id)?},
-                build_update(update_meeting),
+                doc! {"_id": ObjectId::parse_str(&update_book.id)?},
+                build_update(update_book),
                 FindOneAndUpdateOptions::builder()
                     .return_document(Some(ReturnDocument::After))
                     .build(),
             )
             .await?
-            .ok_or(Error::NoSuchMeeting)?;
-        let updated_meeting: Meeting =
-            bson::from_document::<MeetingDocument>(updated_document)?.into();
+            .ok_or(Error::NoSuchBook)?;
+        let updated_book: Book =
+            bson::from_document::<BookDocument>(updated_document)?.into();
 
-        Ok(updated_meeting)
+        Ok(updated_book)
     }
 
-    /// Returns all meetings.
-    pub async fn meetings(&self) -> Result<Vec<Meeting>, Error> {
-        let mut cursor = self.meetings.find(None, None).await?;
-        let mut meetings = Vec::new();
+    /// Returns all books.
+    pub async fn books(&self) -> Result<Vec<Book>, Error> {
+        let mut cursor = self.books.find(None, None).await?;
+        let mut books = Vec::new();
 
         while let Some(Ok(document)) = cursor.next().await {
-            meetings.push(
-                bson::from_document::<MeetingDocument>(document)?.into(),
-            );
+            books.push(bson::from_document::<BookDocument>(document)?.into());
         }
 
-        Ok(meetings)
+        Ok(books)
     }
 }
 
-/// A meeting as it is stored in MongoDB.
+/// A book as it is stored in MongoDB.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct MeetingDocument {
+struct BookDocument {
     #[serde(rename(deserialize = "_id"))]
     id: ObjectId,
-    date: Option<DateTime>,
-    location: Option<String>,
     title: String,
     author: String,
     description: String,
-    pitched_by: String,
+    page_count: u32,
+    pitch_by: String,
     first_suggested: DateTime,
     supporters: Vec<String>,
 }
 
 #[allow(clippy::from_over_into)]
-impl Into<Meeting> for MeetingDocument {
-    fn into(self) -> Meeting {
-        Meeting {
+impl Into<Book> for BookDocument {
+    fn into(self) -> Book {
+        Book {
             id: self.id.to_hex(),
-            date: self.date.map(DateTime::into),
-            location: self.location,
             title: self.title,
             author: self.author,
             description: self.description,
-            pitched_by: self.pitched_by,
+            page_count: self.page_count,
+            pitch_by: self.pitch_by,
             first_suggested: self.first_suggested.into(),
             supporters: self.supporters,
         }
@@ -130,7 +121,7 @@ pub enum Error {
     ObjectId(bson::oid::Error),
     MongoDb(mongodb::error::Error),
     BadObjectId,
-    NoSuchMeeting,
+    NoSuchBook,
 }
 
 impl From<bson::ser::Error> for Error {
@@ -165,7 +156,7 @@ impl fmt::Display for Error {
             Self::ObjectId(_) => write!(f, "Invalid ID."),
             Self::MongoDb(e) => e.fmt(f),
             Self::BadObjectId => write!(f, "Insert did not return ObjectId."),
-            Self::NoSuchMeeting => write!(f, "Meeting does not exist."),
+            Self::NoSuchBook => write!(f, "Book does not exist."),
         }
     }
 }
@@ -178,39 +169,36 @@ impl error::Error for Error {
             Self::ObjectId(ref e) => Some(e),
             Self::MongoDb(ref e) => Some(e),
             Self::BadObjectId => None,
-            Self::NoSuchMeeting => None,
+            Self::NoSuchBook => None,
         }
     }
 }
 
 /// Builds the MongoDB documents representing the update.
-fn build_update(update_meeting: UpdateMeeting) -> Vec<Document> {
+fn build_update(update_book: UpdateBook) -> Vec<Document> {
     let mut updates = Vec::new();
 
     // This is dumb. We could probably do something with serde to automatically
     // turn it into a Document.
-    if let Some(value) = update_meeting.date {
-        updates.push(doc! {"$set": {"date": value}})
-    }
-    if let Some(value) = update_meeting.location {
-        updates.push(doc! {"$set": {"location": value}})
-    }
-    if let Some(value) = update_meeting.title {
+    if let Some(value) = update_book.title {
         updates.push(doc! {"$set": {"title": value}})
     }
-    if let Some(value) = update_meeting.author {
+    if let Some(value) = update_book.author {
         updates.push(doc! {"$set": {"author": value}})
     }
-    if let Some(value) = update_meeting.description {
+    if let Some(value) = update_book.description {
         updates.push(doc! {"$set": {"description": value}})
     }
-    if let Some(value) = update_meeting.pitched_by {
-        updates.push(doc! {"$set": {"pitchedBy": value}})
+    if let Some(value) = update_book.page_count {
+        updates.push(doc! {"$set": {"pageCount": value}})
     }
-    if let Some(value) = update_meeting.first_suggested {
+    if let Some(value) = update_book.pitch_by {
+        updates.push(doc! {"$set": {"pitchBy": value}})
+    }
+    if let Some(value) = update_book.first_suggested {
         updates.push(doc! {"$set": {"firstSuggested": value}})
     }
-    if let Some(value) = update_meeting.supporters {
+    if let Some(value) = update_book.supporters {
         updates.push(doc! {"$set": {"supporters": value}})
     }
 

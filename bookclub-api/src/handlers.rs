@@ -7,42 +7,40 @@ use actix_web::{
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    meeting_service::Error, CreateMeeting, ServiceContainer, UpdateMeeting,
-};
+use crate::{book_service::Error, CreateBook, ServiceContainer, UpdateBook};
 
-#[get("/v1/meetings")]
-async fn meetings(
+#[get("/v1/books")]
+async fn books(
     service_container: web::Data<ServiceContainer>,
 ) -> Result<impl Responder, Error> {
-    let meetings = service_container.meeting_service.meetings().await?;
-    Ok(HttpResponse::Ok().json(meetings))
+    let books = service_container.book_service.books().await?;
+    Ok(HttpResponse::Ok().json(books))
 }
 
-#[post("/v1/meetings")]
-async fn create_meeting(
-    create_meeting: web::Json<CreateMeeting>,
+#[post("/v1/books")]
+async fn create_book(
+    create_book: web::Json<CreateBook>,
     service_container: web::Data<ServiceContainer>,
 ) -> Result<impl Responder, Error> {
-    let meeting = service_container
-        .meeting_service
-        .create_meeting(create_meeting.into_inner())
+    let book = service_container
+        .book_service
+        .create_book(create_book.into_inner())
         .await?;
-    Ok(HttpResponse::Ok().json(meeting))
+    Ok(HttpResponse::Ok().json(book))
 }
 
-#[patch("/v1/meetings/{id}")]
-async fn update_meeting(
+#[patch("/v1/books/{id}")]
+async fn update_book(
     info: web::Path<String>,
-    update_meeting_request: web::Json<UpdateMeetingRequest>,
+    update_book_request: web::Json<UpdateBookRequest>,
     service_container: web::Data<ServiceContainer>,
 ) -> Result<impl Responder, Error> {
-    let update_meeting_request = update_meeting_request.into_inner();
-    let meeting = service_container
-        .meeting_service
-        .update_meeting((update_meeting_request, info.into_inner()).into())
+    let update_book_request = update_book_request.into_inner();
+    let book = service_container
+        .book_service
+        .update_book((update_book_request, info.into_inner()).into())
         .await?;
-    Ok(HttpResponse::Ok().json(meeting))
+    Ok(HttpResponse::Ok().json(book))
 }
 
 impl ResponseError for Error {
@@ -71,31 +69,29 @@ struct ErrorResponse {
     message: String,
 }
 
-/// An API request for updating a meeting.
+/// An API request for updating a book.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct UpdateMeetingRequest {
-    pub date: Option<DateTime<Utc>>,
-    pub location: Option<String>,
+pub struct UpdateBookRequest {
     pub title: Option<String>,
     pub author: Option<String>,
     pub description: Option<String>,
-    pub pitched_by: Option<String>,
+    pub page_count: Option<u32>,
+    pub pitch_by: Option<String>,
     pub first_suggested: Option<DateTime<Utc>>,
     pub supporters: Option<Vec<String>>,
 }
 
 #[allow(clippy::from_over_into)]
-impl Into<UpdateMeeting> for (UpdateMeetingRequest, String) {
-    fn into(self) -> UpdateMeeting {
-        UpdateMeeting {
+impl Into<UpdateBook> for (UpdateBookRequest, String) {
+    fn into(self) -> UpdateBook {
+        UpdateBook {
             id: self.1,
-            date: self.0.date,
-            location: self.0.location,
             title: self.0.title,
             author: self.0.author,
             description: self.0.description,
-            pitched_by: self.0.pitched_by,
+            page_count: self.0.page_count,
+            pitch_by: self.0.pitch_by,
             first_suggested: self.0.first_suggested,
             supporters: self.0.supporters,
         }

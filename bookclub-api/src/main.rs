@@ -6,8 +6,8 @@ use mongodb::Client;
 use std::{env, io::Result};
 
 use bookclub_api::{
-    handlers, meeting_repository::MeetingRepository,
-    meeting_service::MeetingService, ServiceContainer,
+    book_repository::BookRepository, book_service::BookService, handlers,
+    ServiceContainer,
 };
 
 #[actix_web::main]
@@ -22,18 +22,18 @@ async fn main() -> Result<()> {
     .await
     .expect("Can't establish connection to MongoDB.");
     let database = client.database("bookclub");
-    let collection = database.collection("meetings");
+    let collection = database.collection("books");
 
     HttpServer::new(move || {
-        let meeting_repository = MeetingRepository::new(collection.clone());
-        let meeting_service = MeetingService::new(meeting_repository);
+        let book_repository = BookRepository::new(collection.clone());
+        let book_service = BookService::new(book_repository);
 
         App::new()
-            .app_data(Data::new(ServiceContainer::new(meeting_service)))
+            .app_data(Data::new(ServiceContainer::new(book_service)))
             .wrap(Logger::default())
-            .service(handlers::meetings)
-            .service(handlers::create_meeting)
-            .service(handlers::update_meeting)
+            .service(handlers::books)
+            .service(handlers::create_book)
+            .service(handlers::update_book)
     })
     .bind("127.0.0.1:8080")?
     .run()
