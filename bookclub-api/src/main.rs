@@ -1,4 +1,4 @@
-use actix_web::{middleware::Logger, App, HttpServer};
+use actix_web::{middleware::Logger, web::Data, App, HttpServer};
 use dotenv::dotenv;
 use env_logger::{Builder, Env};
 use mongodb::Client;
@@ -29,7 +29,7 @@ async fn main() -> Result<()> {
         let meeting_service = MeetingService::new(meeting_repository);
 
         App::new()
-            .data(ServiceContainer::new(meeting_service))
+            .app_data(Data::new(ServiceContainer::new(meeting_service)))
             .wrap(Logger::default())
             .service(handlers::meetings)
             .service(handlers::create_meeting)

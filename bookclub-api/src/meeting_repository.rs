@@ -14,12 +14,12 @@ use crate::{CreateMeeting, Meeting, UpdateMeeting};
 
 /// Gives access to the MongoDB collection for meetings.
 pub struct MeetingRepository {
-    meetings: Collection,
+    meetings: Collection<Document>,
 }
 
 impl MeetingRepository {
     /// Creates a new repository.
-    pub fn new(meetings: Collection) -> Self {
+    pub fn new(meetings: Collection<Document>) -> Self {
         Self { meetings }
     }
 
@@ -35,14 +35,11 @@ impl MeetingRepository {
         // native BSON datetime type in the DB
         document.insert(
             "firstSuggested",
-            Bson::DateTime(create_meeting.first_suggested),
+            bson::DateTime::from(create_meeting.first_suggested),
         );
         document.insert(
             "date",
-            create_meeting
-                .date
-                .map(Bson::DateTime)
-                .unwrap_or(Bson::Null),
+            create_meeting.date.map(Into::into).unwrap_or(Bson::Null),
         );
 
         let insert_one_result =
@@ -63,7 +60,7 @@ impl MeetingRepository {
         let updated_document = self
             .meetings
             .find_one_and_update(
-                doc! {"_id": ObjectId::with_string(&update_meeting.id)?},
+                doc! {"_id": ObjectId::parse_str(&update_meeting.id)?},
                 build_update(update_meeting),
                 FindOneAndUpdateOptions::builder()
                     .return_document(Some(ReturnDocument::After))

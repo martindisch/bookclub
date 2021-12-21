@@ -1,8 +1,8 @@
 //! Contains all endpoint handlers.
 
 use actix_web::{
-    dev::HttpResponseBuilder, error::ResponseError, get, http::StatusCode,
-    patch, post, web, HttpResponse, Responder,
+    error::ResponseError, get, http::StatusCode, patch, post, web,
+    HttpResponse, HttpResponseBuilder, Responder,
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};

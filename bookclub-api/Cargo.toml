@@ -5,10 +5,10 @@ authors = ["Martin Disch <martindisch@gmail.com>"]
 edition = "2021"
 
 [dependencies]
-actix-web = "3.3.2"
-env_logger = "0.8.2"
-mongodb = "1.1.1"
+actix-web = "4.0.0-beta.15"
+env_logger = "0.9.0"
+mongodb = { version = "2.1.0", features = ["bson-chrono-0_4"] }
 dotenv = "0.15.0"
-serde = "1.0.121"
-futures = "0.3.12"
+serde = "1.0.132"
+futures = "0.3.19"
 chrono = { version = "0.4.19", features = [ "serde" ] }
