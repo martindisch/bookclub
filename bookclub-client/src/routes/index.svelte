@@ -1,23 +1,14 @@
 <script lang="ts" context="module">
   import type { Load } from "@sveltejs/kit";
-
-  interface BookResponse {
-        id: string,
-        title: string,
-        author: string,
-        description: string,
-        pageCount: number,
-        pitchBy: string,
-        firstSuggested: string,
-        supporters: string[]
-  }
+  import { responseToBook } from "../api";
+  import type { Book as BookProps } from "../types";
 
   export const load: Load = async ({ page, fetch }) => {
     const res = await fetch(`${import.meta.env.VITE_API}/v1/books`);
     if (res.ok) {
       return {
         props: {
-          books: await res.json(),
+          books: (await res.json()).map(responseToBook),
         },
       };
     }
@@ -34,23 +25,14 @@
   import List from "../components/List.svelte";
   import Button from "../components/Button.svelte";
 
-  export let books: BookResponse[];
+  export let books: BookProps[];
 
   const vote = () => alert("Voted for a book");
 </script>
 
 <List>
-{#each books as book (book.id)}
-  <Book
-    title={book.title}
-    author={book.author}
-    pageCount={book.pageCount}
-    description={book.description}
-    pitchBy={book.pitchBy}
-    firstSuggested={new Date(Date.parse(book.firstSuggested))}
-    supporters={book.supporters}
-    onVote={vote}
-  />
-{/each}
+  {#each books as book (book.id)}
+    <Book {...book} onVote={vote} />
+  {/each}
 </List>
 <Button text="+" rounded={true} on:click={() => goto("/books/new")} />
