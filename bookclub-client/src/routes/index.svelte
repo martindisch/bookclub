@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
   import Book from "../components/Book.svelte";
   import List from "../components/List.svelte";
   import Button from "../components/Button.svelte";
@@ -38,4 +39,4 @@
     onVote={vote}
   />
 </List>
-<Button text="+" rounded={true} />
+<Button text="+" rounded={true} on:click={() => goto("/books/new")} />
