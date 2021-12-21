@@ -1,3 +1,4 @@
+use actix_cors::Cors;
 use actix_web::{middleware::Logger, web::Data, App, HttpServer};
 use dotenv::dotenv;
 use env_logger::{Builder, Env};
@@ -31,6 +32,7 @@ async fn main() -> Result<()> {
         App::new()
             .app_data(Data::new(ServiceContainer::new(book_service)))
             .wrap(Logger::default())
+            .wrap(Cors::default().allow_any_origin())
             .service(handlers::books)
             .service(handlers::create_book)
             .service(handlers::update_book)

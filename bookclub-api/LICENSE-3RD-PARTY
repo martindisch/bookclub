@@ -3,6 +3,8 @@ The MIT License
 
 applies to:
 - actix-web, Copyright (c) 2017 Actix Team
+- actix-cors, Copyright (c) 2017 Nikolay Kim
+              Copyright (c) 2017 svartalf and Actix team
 - env-logger, Copyright (c) 2014 The Rust Project Developers
 - dotenv, Copyright (c) 2014 Santiago Lapresta and contributors
 - serde
@@ -33,6 +35,7 @@ The Apache License
 
 applies to:
 - actix-web
+- actix-cors
 - env-logger
 - mongodb
 - serde

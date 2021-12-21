@@ -20,6 +20,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "actix-cors"
+version = "0.6.0-beta.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "969ddf0c2fb9508e4fa8246d3d4a33bfd7de7c51ed3538b600318190c25b4787"
+dependencies = [
+ "actix-service",
+ "actix-utils",
+ "actix-web",
+ "derive_more",
+ "futures-util",
+ "log",
+ "once_cell",
+ "smallvec",
+]
+
+[[package]]
 name = "actix-http"
 version = "3.0.0-beta.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -268,6 +284,7 @@ dependencies = [
 name = "bookclub-api"
 version = "0.1.0"
 dependencies = [
+ "actix-cors",
  "actix-web",
  "chrono",
  "dotenv",
