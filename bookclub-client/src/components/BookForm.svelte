@@ -21,6 +21,7 @@
   export let pageCount: number | null = null;
   export let pitchBy = "";
   export let onSave: (book: Book) => void;
+  export let onDelete: (() => void) | null = null;
 
   const save = () => {
     if (pageCount !== null) {
@@ -39,6 +40,9 @@
     <InputNumber label="Page count" id="pageCount" bind:value={pageCount} />
     <InputText label="Pitch by (your name)" id="pitchBy" bind:value={pitchBy} />
     <div class="col-span-full place-self-end mt-2">
+      {#if onDelete !== null}
+        <Button text="Delete" on:click={onDelete} />
+      {/if}
       <Button text="Save" submit={true} />
     </div>
   </form>

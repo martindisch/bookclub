@@ -35,6 +35,14 @@
 
     goto("/");
   };
+
+  const deleteBook = async () => {
+    await fetch(`${import.meta.env.VITE_API}/v1/books/${book.id}`, {
+      method: "DELETE",
+    });
+
+    goto("/");
+  };
 </script>
 
-<BookForm {...book} onSave={updateBook} />
+<BookForm {...book} onSave={updateBook} onDelete={deleteBook} />
