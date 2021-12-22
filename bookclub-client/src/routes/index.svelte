@@ -3,7 +3,7 @@
   import { responseToBook } from "../api";
   import type { Book as BookProps } from "../types";
 
-  export const load: Load = async ({ page, fetch }) => {
+  export const load: Load = async ({ fetch }) => {
     const res = await fetch(`${import.meta.env.VITE_API}/v1/books`);
     if (res.ok) {
       return {
