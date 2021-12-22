@@ -1,16 +1,16 @@
 use actix_web::{get, web, HttpResponse, Responder};
 use futures::StreamExt;
-use mongodb::bson;
-
-use crate::{
-    book_service::Error, handlers::BookDocument, Book, ServiceContainer,
+use mongodb::{
+    bson::{self, Document},
+    Collection,
 };
+
+use crate::{book_service::Error, handlers::BookDocument, Book};
 
 #[get("/v1/books")]
 async fn handle(
-    service_container: web::Data<ServiceContainer>,
+    books: web::Data<Collection<Document>>,
 ) -> Result<impl Responder, Error> {
-    let books = &service_container.books;
     let mut cursor = books.find(None, None).await.unwrap();
     let mut books: Vec<Book> = Vec::new();
 

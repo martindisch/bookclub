@@ -1,5 +1,4 @@
 use chrono::{DateTime, Utc};
-use mongodb::{bson::Document, Collection};
 use serde::{Deserialize, Serialize};
 
 pub mod book_repository;
@@ -32,16 +31,4 @@ pub struct UpdateBook {
     pub pitch_by: Option<String>,
     pub first_suggested: Option<DateTime<Utc>>,
     pub supporters: Option<Vec<String>>,
-}
-
-/// Poor man's DI container.
-pub struct ServiceContainer {
-    books: Collection<Document>,
-}
-
-impl ServiceContainer {
-    /// Creates a new container.
-    pub fn new(books: Collection<Document>) -> Self {
-        Self { books }
-    }
 }

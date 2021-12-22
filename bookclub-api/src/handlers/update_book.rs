@@ -2,21 +2,19 @@ use actix_web::{patch, web, HttpResponse, Responder};
 use mongodb::{
     bson::{self, doc, oid::ObjectId, Document},
     options::{FindOneAndUpdateOptions, ReturnDocument},
+    Collection,
 };
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    book_service::Error, handlers::BookDocument, Book, ServiceContainer,
-};
+use crate::{book_service::Error, handlers::BookDocument, Book};
 
 #[patch("/v1/books/{id}")]
 async fn handle(
     info: web::Path<String>,
     update_book: web::Json<UpdateBook>,
-    service_container: web::Data<ServiceContainer>,
+    books: web::Data<Collection<Document>>,
 ) -> Result<impl Responder, Error> {
     let update_book = update_book.into_inner();
-    let books = &service_container.books;
 
     let updated_document = books
         .find_one_and_update(

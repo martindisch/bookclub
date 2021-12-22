@@ -2,11 +2,11 @@ use actix_cors::Cors;
 use actix_web::{middleware::Logger, web::Data, App, HttpServer};
 use dotenv::dotenv;
 use env_logger::{Builder, Env};
-use mongodb::Client;
+use mongodb::{bson::Document, Client};
 
 use std::{env, io::Result};
 
-use bookclub_api::{handlers, ServiceContainer};
+use bookclub_api::handlers;
 
 #[actix_web::main]
 async fn main() -> Result<()> {
@@ -20,11 +20,11 @@ async fn main() -> Result<()> {
     .await
     .expect("Can't establish connection to MongoDB.");
     let database = client.database("bookclub");
-    let collection = database.collection("books");
+    let collection = database.collection::<Document>("books");
 
     HttpServer::new(move || {
         App::new()
-            .app_data(Data::new(ServiceContainer::new(collection.clone())))
+            .app_data(Data::new(collection.clone()))
             .wrap(Logger::default())
             .wrap(Cors::default().allow_any_origin())
             .service(handlers::get_books::handle)

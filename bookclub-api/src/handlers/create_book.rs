@@ -1,16 +1,18 @@
 use actix_web::{post, web, HttpResponse, Responder};
-use mongodb::bson::{self, DateTime};
+use mongodb::{
+    bson::{self, DateTime, Document},
+    Collection,
+};
 use serde::{Deserialize, Serialize};
 
-use crate::{book_service::Error, Book, ServiceContainer};
+use crate::{book_service::Error, Book};
 
 #[post("/v1/books")]
 async fn handle(
     create_book: web::Json<CreateBook>,
-    service_container: web::Data<ServiceContainer>,
+    books: web::Data<Collection<Document>>,
 ) -> Result<impl Responder, Error> {
     let create_book = create_book.into_inner();
-    let books = &service_container.books;
     let now = DateTime::now();
 
     let mut document = bson::to_document(&create_book).unwrap();
