@@ -32,7 +32,7 @@
 
 <List>
   {#each books as book (book.id)}
-    <Book {...book} onVote={vote} href={`/books/${book.id}`} />
+    <Book {...book} onVote={vote} />
   {/each}
 </List>
 <Button text="+" rounded={true} on:click={() => goto("/books/new")} />
