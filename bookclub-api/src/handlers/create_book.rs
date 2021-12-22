@@ -5,7 +5,7 @@ use mongodb::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::{book_service::Error, Book};
+use crate::{book_service::Error, handlers::BookResponse};
 
 #[post("/v1/books")]
 async fn handle(
@@ -21,7 +21,7 @@ async fn handle(
     let insert_one_result = books.insert_one(document, None).await.unwrap();
     let id = insert_one_result.inserted_id.as_object_id().unwrap();
 
-    let book = Book {
+    let book = BookResponse {
         id: id.to_hex(),
         title: create_book.title,
         author: create_book.author,

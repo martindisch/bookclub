@@ -6,7 +6,10 @@ use mongodb::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::{book_service::Error, handlers::BookDocument, Book};
+use crate::{
+    book_service::Error,
+    handlers::{BookDocument, BookResponse},
+};
 
 #[patch("/v1/books/{id}")]
 async fn handle(
@@ -27,7 +30,7 @@ async fn handle(
         .await
         .unwrap()
         .unwrap();
-    let updated_book: Book =
+    let updated_book: BookResponse =
         bson::from_document::<BookDocument>(updated_document)
             .unwrap()
             .into();

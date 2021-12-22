@@ -6,7 +6,7 @@ use actix_web::{
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::{book_service::Error, UpdateBook};
+use crate::book_service::Error;
 
 impl ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
@@ -45,20 +45,4 @@ pub struct UpdateBookRequest {
     pub pitch_by: Option<String>,
     pub first_suggested: Option<DateTime<Utc>>,
     pub supporters: Option<Vec<String>>,
-}
-
-#[allow(clippy::from_over_into)]
-impl Into<UpdateBook> for (UpdateBookRequest, String) {
-    fn into(self) -> UpdateBook {
-        UpdateBook {
-            id: self.1,
-            title: self.0.title,
-            author: self.0.author,
-            description: self.0.description,
-            page_count: self.0.page_count,
-            pitch_by: self.0.pitch_by,
-            first_suggested: self.0.first_suggested,
-            supporters: self.0.supporters,
-        }
-    }
 }

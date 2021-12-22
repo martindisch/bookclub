@@ -5,8 +5,6 @@ use serde::{Deserialize, Serialize};
 
 use std::{error, fmt};
 
-use crate::Book;
-
 /// A book as it is stored in MongoDB.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -20,22 +18,6 @@ struct BookDocument {
     pitch_by: String,
     first_suggested: DateTime,
     supporters: Vec<String>,
-}
-
-#[allow(clippy::from_over_into)]
-impl Into<Book> for BookDocument {
-    fn into(self) -> Book {
-        Book {
-            id: self.id.to_hex(),
-            title: self.title,
-            author: self.author,
-            description: self.description,
-            page_count: self.page_count,
-            pitch_by: self.pitch_by,
-            first_suggested: self.first_suggested.into(),
-            supporters: self.supporters,
-        }
-    }
 }
 
 /// The error type wrapping what can go wrong in the repository.

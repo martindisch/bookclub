@@ -1,11 +1,24 @@
-use mongodb::bson::{doc, oid::ObjectId, DateTime};
+use chrono::{DateTime, Utc};
+use mongodb::bson::{doc, oid::ObjectId, DateTime as BsonDateTime};
 use serde::{Deserialize, Serialize};
-
-use crate::Book;
 
 pub mod create_book;
 pub mod get_books;
 pub mod update_book;
+
+/// A book as returned by the API.
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BookResponse {
+    pub id: String,
+    pub title: String,
+    pub author: String,
+    pub description: String,
+    pub page_count: u32,
+    pub pitch_by: String,
+    pub first_suggested: DateTime<Utc>,
+    pub supporters: Vec<String>,
+}
 
 /// A book as it is stored in MongoDB.
 #[derive(Debug, Serialize, Deserialize)]
@@ -18,14 +31,14 @@ pub struct BookDocument {
     description: String,
     page_count: u32,
     pitch_by: String,
-    first_suggested: DateTime,
+    first_suggested: BsonDateTime,
     supporters: Vec<String>,
 }
 
 #[allow(clippy::from_over_into)]
-impl Into<Book> for BookDocument {
-    fn into(self) -> Book {
-        Book {
+impl Into<BookResponse> for BookDocument {
+    fn into(self) -> BookResponse {
+        BookResponse {
             id: self.id.to_hex(),
             title: self.title,
             author: self.author,
