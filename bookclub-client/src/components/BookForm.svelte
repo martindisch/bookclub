@@ -41,7 +41,7 @@
     <InputText label="Pitch by (your name)" id="pitchBy" bind:value={pitchBy} />
     <div class="col-span-full place-self-end mt-2">
       {#if onDelete !== null}
-        <Button text="Delete" on:click={onDelete} />
+        <Button text="Delete" on:click={onDelete} red={true} />
       {/if}
       <Button text="Save" submit={true} />
     </div>
