@@ -3,6 +3,7 @@ use mongodb::bson::{doc, oid::ObjectId, DateTime as BsonDateTime};
 use serde::{Deserialize, Serialize};
 
 pub mod create_book;
+pub mod delete_book;
 pub mod get_book;
 pub mod get_books;
 pub mod update_book;
