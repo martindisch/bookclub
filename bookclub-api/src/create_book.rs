@@ -1,4 +1,4 @@
-//! Logic for creating books.
+//! Logic for creating a book.
 
 use actix_web::{
     error::ResponseError, http::StatusCode, post, web, HttpResponse,
@@ -13,7 +13,7 @@ use std::fmt;
 
 use crate::{BookResponse, ErrorResponse};
 
-/// Endpoint handler for creating books.
+/// Endpoint handler for creating a book.
 #[post("/v1/books")]
 async fn handle(
     create_book: web::Json<CreateBook>,
@@ -45,7 +45,7 @@ async fn handle(
     Ok(HttpResponse::Ok().json(book))
 }
 
-/// A request for creating a new book.
+/// A request for creating a book.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateBook {

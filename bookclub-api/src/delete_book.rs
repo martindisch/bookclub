@@ -1,4 +1,4 @@
-//! Logic for deleting books.
+//! Logic for deleting a book.
 
 use actix_web::{
     delete, error::ResponseError, http::StatusCode, web, HttpResponse,
@@ -12,7 +12,7 @@ use std::fmt;
 
 use crate::ErrorResponse;
 
-/// Endpoint handler for deleting books.
+/// Endpoint handler for deleting a book.
 #[delete("/v1/books/{id}")]
 async fn handle(
     info: web::Path<String>,

@@ -1,4 +1,4 @@
-//! Logic for updating books.
+//! Logic for updating a book.
 
 use actix_web::{
     error::ResponseError, http::StatusCode, patch, web, HttpResponse,
@@ -14,7 +14,7 @@ use std::fmt;
 
 use crate::{BookDocument, BookResponse, ErrorResponse};
 
-/// Endpoint handler for updating books.
+/// Endpoint handler for updating a book.
 #[patch("/v1/books/{id}")]
 async fn handle(
     info: web::Path<String>,

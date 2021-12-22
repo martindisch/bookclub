@@ -1,4 +1,4 @@
-//! Logic for getting a single book.
+//! Logic for getting a book.
 
 use actix_web::{
     error::ResponseError, get, http::StatusCode, web, HttpResponse,
@@ -12,7 +12,7 @@ use std::fmt;
 
 use crate::{BookDocument, BookResponse, ErrorResponse};
 
-/// Endpoint handler for getting a single book.
+/// Endpoint handler for getting a book.
 #[get("/v1/books/{id}")]
 async fn handle(
     info: web::Path<String>,
