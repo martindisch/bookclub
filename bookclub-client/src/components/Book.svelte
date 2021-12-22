@@ -9,11 +9,12 @@
   export let pitchBy: string;
   export let firstSuggested: Date;
   export let supporters: string[];
+  export let href: string;
   export let onVote: () => void;
 </script>
 
 <Card>
-  <h1 class="text-2xl">{title}</h1>
+  <h1 class="text-2xl"><a class="hover:underline" {href}>{title}</a></h1>
   <p class="mb-4">{author}</p>
 
   <p class="mb-4 hyphens-auto text-justify whitespace-pre-wrap">{description}</p>
