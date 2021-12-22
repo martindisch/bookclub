@@ -1,6 +1,5 @@
 //! Contains data-access logic.
 
-use futures::StreamExt;
 use mongodb::{
     bson::{self, doc, oid::ObjectId, DateTime, Document},
     options::{FindOneAndUpdateOptions, ReturnDocument},
@@ -43,18 +42,6 @@ impl BookRepository {
             bson::from_document::<BookDocument>(updated_document)?.into();
 
         Ok(updated_book)
-    }
-
-    /// Returns all books.
-    pub async fn books(&self) -> Result<Vec<Book>, Error> {
-        let mut cursor = self.books.find(None, None).await?;
-        let mut books = Vec::new();
-
-        while let Some(Ok(document)) = cursor.next().await {
-            books.push(bson::from_document::<BookDocument>(document)?.into());
-        }
-
-        Ok(books)
     }
 }
 

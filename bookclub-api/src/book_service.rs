@@ -25,11 +25,6 @@ impl BookService {
     ) -> Result<Book, Error> {
         Ok(self.repository.update_book(update_book).await?)
     }
-
-    /// Returns all books.
-    pub async fn books(&self) -> Result<Vec<Book>, Error> {
-        Ok(self.repository.books().await?)
-    }
 }
 
 /// The error type for everything.

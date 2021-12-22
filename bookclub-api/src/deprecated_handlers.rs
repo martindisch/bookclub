@@ -1,21 +1,13 @@
 //! Contains all endpoint handlers.
 
 use actix_web::{
-    error::ResponseError, get, http::StatusCode, patch, web, HttpResponse,
+    error::ResponseError, http::StatusCode, patch, web, HttpResponse,
     HttpResponseBuilder, Responder,
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::{book_service::Error, ServiceContainer, UpdateBook};
-
-#[get("/v1/books")]
-async fn books(
-    service_container: web::Data<ServiceContainer>,
-) -> Result<impl Responder, Error> {
-    let books = service_container.book_service.books().await?;
-    Ok(HttpResponse::Ok().json(books))
-}
 
 #[patch("/v1/books/{id}")]
 async fn update_book(

@@ -36,7 +36,7 @@ async fn main() -> Result<()> {
             )))
             .wrap(Logger::default())
             .wrap(Cors::default().allow_any_origin())
-            .service(deprecated_handlers::books)
+            .service(handlers::get_books::handle)
             .service(handlers::create_book::handle)
             .service(deprecated_handlers::update_book)
     })
