@@ -24,7 +24,12 @@ async fn main() -> Result<()> {
         App::new()
             .app_data(Data::new(collection.clone()))
             .wrap(Logger::default())
-            .wrap(Cors::default().allow_any_origin())
+            .wrap(
+                Cors::default()
+                    .allow_any_origin()
+                    .allow_any_method()
+                    .allow_any_header(),
+            )
             .service(bookclub_api::create_book::handle)
             .service(bookclub_api::update_book::handle)
             .service(bookclub_api::get_books::handle)
