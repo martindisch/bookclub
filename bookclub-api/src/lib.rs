@@ -20,10 +20,10 @@ pub struct BookResponse {
     pub supporters: Vec<String>,
 }
 
-/// A book as it is stored in MongoDB.
+/// The MongoDB model of a book.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct BookDocument {
+struct BookDocument {
     #[serde(rename(deserialize = "_id"))]
     id: ObjectId,
     title: String,
@@ -51,10 +51,10 @@ impl Into<BookResponse> for BookDocument {
     }
 }
 
-/// The error response that will be serialized to the body.
+/// The body of a non-2XX (error) response.
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct ErrorResponse {
-    status_code: u16,
-    message: String,
+pub struct ErrorResponse {
+    pub status_code: u16,
+    pub message: String,
 }

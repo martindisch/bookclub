@@ -1,3 +1,5 @@
+//! Logic for creating books.
+
 use actix_web::{
     error::ResponseError, http::StatusCode, post, web, HttpResponse,
     HttpResponseBuilder, Responder,
@@ -11,6 +13,7 @@ use std::fmt;
 
 use crate::{BookResponse, ErrorResponse};
 
+/// Endpoint handler for creating books.
 #[post("/v1/books")]
 async fn handle(
     create_book: web::Json<CreateBook>,
@@ -45,7 +48,7 @@ async fn handle(
 /// A request for creating a new book.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct CreateBook {
+pub struct CreateBook {
     pub title: String,
     pub author: String,
     pub description: String,
@@ -56,10 +59,22 @@ struct CreateBook {
 
 /// Possible errors while creating a book.
 #[derive(Debug)]
-enum CreateError {
+pub enum CreateError {
     Serialization(bson::ser::Error),
     MongoDb(mongodb::error::Error),
     BadObjectId,
+}
+
+impl From<bson::ser::Error> for CreateError {
+    fn from(err: bson::ser::Error) -> Self {
+        Self::Serialization(err)
+    }
+}
+
+impl From<mongodb::error::Error> for CreateError {
+    fn from(err: mongodb::error::Error) -> Self {
+        Self::MongoDb(err)
+    }
 }
 
 impl ResponseError for CreateError {
@@ -80,17 +95,5 @@ impl ResponseError for CreateError {
 impl fmt::Display for CreateError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "An internal error occurred.")
-    }
-}
-
-impl From<bson::ser::Error> for CreateError {
-    fn from(err: bson::ser::Error) -> Self {
-        Self::Serialization(err)
-    }
-}
-
-impl From<mongodb::error::Error> for CreateError {
-    fn from(err: mongodb::error::Error) -> Self {
-        Self::MongoDb(err)
     }
 }

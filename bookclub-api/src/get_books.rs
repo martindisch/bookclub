@@ -1,3 +1,5 @@
+//! Logic for getting books.
+
 use actix_web::{
     error::ResponseError, get, http::StatusCode, web, HttpResponse,
     HttpResponseBuilder, Responder,
@@ -11,6 +13,7 @@ use std::fmt;
 
 use crate::{BookDocument, BookResponse, ErrorResponse};
 
+/// Endpoint handler for getting books.
 #[get("/v1/books")]
 async fn handle(
     books: web::Data<Collection<Document>>,
@@ -27,7 +30,7 @@ async fn handle(
 
 /// Possible errors while getting books.
 #[derive(Debug)]
-enum GetError {
+pub enum GetError {
     Deserialization(bson::de::Error),
     MongoDb(mongodb::error::Error),
 }

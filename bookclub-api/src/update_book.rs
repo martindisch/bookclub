@@ -1,3 +1,5 @@
+//! Logic for updating books.
+
 use actix_web::{
     error::ResponseError, http::StatusCode, patch, web, HttpResponse,
     HttpResponseBuilder, Responder,
@@ -12,6 +14,7 @@ use std::fmt;
 
 use crate::{BookDocument, BookResponse, ErrorResponse};
 
+/// Endpoint handler for updating books.
 #[patch("/v1/books/{id}")]
 async fn handle(
     info: web::Path<String>,
@@ -30,16 +33,17 @@ async fn handle(
         )
         .await?
         .ok_or(UpdateError::NoSuchBook)?;
+
     let updated_book: BookResponse =
         bson::from_document::<BookDocument>(updated_document)?.into();
 
     Ok(HttpResponse::Ok().json(updated_book))
 }
 
-/// A request for updating a new book.
+/// A request for updating a book.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct UpdateBook {
+pub struct UpdateBook {
     pub title: Option<String>,
     pub author: Option<String>,
     pub description: Option<String>,
@@ -74,7 +78,7 @@ fn build_update(update_book: UpdateBook) -> Vec<Document> {
 
 /// Possible errors while updating a book.
 #[derive(Debug)]
-enum UpdateError {
+pub enum UpdateError {
     ObjectId(bson::oid::Error),
     MongoDb(mongodb::error::Error),
     NoSuchBook,
