@@ -31,8 +31,8 @@ async fn handle(
 /// Possible errors while getting books.
 #[derive(Debug)]
 pub enum GetError {
-    Deserialization(bson::de::Error),
     MongoDb(mongodb::error::Error),
+    Deserialization(bson::de::Error),
 }
 
 impl From<mongodb::error::Error> for GetError {
