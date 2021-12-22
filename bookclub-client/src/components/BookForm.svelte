@@ -37,7 +37,7 @@
       <InputTextArea label="Description" id="description" rows={5} bind:value={description} />
     </div>
     <InputNumber label="Page count" id="pageCount" bind:value={pageCount} />
-    <InputText label="Pitch by" id="pitchBy" bind:value={pitchBy} />
+    <InputText label="Pitch by (your name)" id="pitchBy" bind:value={pitchBy} />
     <div class="col-span-full place-self-end mt-2">
       <Button text="Save" />
     </div>
