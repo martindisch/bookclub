@@ -8,7 +8,7 @@ use std::{env, io::Result};
 
 use bookclub_api::{
     book_repository::BookRepository, book_service::BookService,
-    deprecated_handlers, ServiceContainer,
+    deprecated_handlers, handlers, ServiceContainer,
 };
 
 #[actix_web::main]
@@ -30,11 +30,14 @@ async fn main() -> Result<()> {
         let book_service = BookService::new(book_repository);
 
         App::new()
-            .app_data(Data::new(ServiceContainer::new(book_service)))
+            .app_data(Data::new(ServiceContainer::new(
+                book_service,
+                collection.clone(),
+            )))
             .wrap(Logger::default())
             .wrap(Cors::default().allow_any_origin())
             .service(deprecated_handlers::books)
-            .service(deprecated_handlers::create_book)
+            .service(handlers::create_book::handle)
             .service(deprecated_handlers::update_book)
     })
     .bind("127.0.0.1:8080")?

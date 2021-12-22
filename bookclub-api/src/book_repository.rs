@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 
 use std::{error, fmt};
 
-use crate::{Book, CreateBook, UpdateBook};
+use crate::{Book, UpdateBook};
 
 /// Gives access to the MongoDB collection for books.
 pub struct BookRepository {
@@ -21,30 +21,6 @@ impl BookRepository {
     /// Creates a new repository.
     pub fn new(books: Collection<Document>) -> Self {
         Self { books }
-    }
-
-    /// Inserts a new book, returning the ID.
-    pub async fn insert_book(
-        &self,
-        create_book: &CreateBook,
-    ) -> Result<String, Error> {
-        let mut document = bson::to_document(create_book)?;
-
-        // Sadly we need to replace DateTime<Utc> with the DateTime wrapper,
-        // because DateTime<Utc> is serialized to String, whereas we want the
-        // native BSON datetime type in the DB
-        document.insert(
-            "firstSuggested",
-            bson::DateTime::from(create_book.first_suggested),
-        );
-
-        let insert_one_result = self.books.insert_one(document, None).await?;
-        let id = insert_one_result
-            .inserted_id
-            .as_object_id()
-            .ok_or(Error::BadObjectId)?;
-
-        Ok(id.to_hex())
     }
 
     /// Updates a book and returns the new one.

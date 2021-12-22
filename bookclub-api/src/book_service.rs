@@ -4,7 +4,7 @@ use std::{error, fmt};
 
 use crate::{
     book_repository::{BookRepository, Error as RepositoryError},
-    Book, CreateBook, UpdateBook,
+    Book, UpdateBook,
 };
 
 /// Represents the books domain.
@@ -16,25 +16,6 @@ impl BookService {
     /// Creates a new service.
     pub fn new(repository: BookRepository) -> Self {
         Self { repository }
-    }
-
-    /// Creates a new book.
-    pub async fn create_book(
-        &self,
-        create_book: CreateBook,
-    ) -> Result<Book, Error> {
-        let id = self.repository.insert_book(&create_book).await?;
-
-        Ok(Book {
-            id,
-            title: create_book.title,
-            author: create_book.author,
-            description: create_book.description,
-            page_count: create_book.page_count,
-            pitch_by: create_book.pitch_by,
-            first_suggested: create_book.first_suggested,
-            supporters: create_book.supporters,
-        })
     }
 
     /// Updates a book.
