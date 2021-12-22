@@ -39,7 +39,7 @@
     <InputNumber label="Page count" id="pageCount" bind:value={pageCount} />
     <InputText label="Pitch by (your name)" id="pitchBy" bind:value={pitchBy} />
     <div class="col-span-full place-self-end mt-2">
-      <Button text="Save" />
+      <Button text="Save" submit={true} />
     </div>
   </form>
 </Card>
