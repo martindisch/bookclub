@@ -17,7 +17,7 @@ use crate::{BookDocument, BookResponse, ErrorResponse};
 #[get("/v1/books")]
 async fn handle(
     books: web::Data<Collection<Document>>,
-) -> Result<impl Responder, GetError> {
+) -> Result<impl Responder, Error> {
     let mut cursor = books.find(None, None).await?;
     let mut books: Vec<BookResponse> = Vec::new();
 
@@ -30,24 +30,24 @@ async fn handle(
 
 /// Possible errors while getting books.
 #[derive(Debug)]
-pub enum GetError {
+pub enum Error {
     MongoDb(mongodb::error::Error),
     Deserialization(bson::de::Error),
 }
 
-impl From<mongodb::error::Error> for GetError {
+impl From<mongodb::error::Error> for Error {
     fn from(err: mongodb::error::Error) -> Self {
         Self::MongoDb(err)
     }
 }
 
-impl From<bson::de::Error> for GetError {
+impl From<bson::de::Error> for Error {
     fn from(err: bson::de::Error) -> Self {
         Self::Deserialization(err)
     }
 }
 
-impl ResponseError for GetError {
+impl ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
         let response = ErrorResponse {
             status_code: self.status_code().as_u16(),
@@ -62,7 +62,7 @@ impl ResponseError for GetError {
     }
 }
 
-impl fmt::Display for GetError {
+impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "An internal error occurred.")
     }

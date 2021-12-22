@@ -18,7 +18,7 @@ use crate::{BookResponse, ErrorResponse};
 async fn handle(
     create_book: web::Json<CreateBook>,
     books: web::Data<Collection<Document>>,
-) -> Result<impl Responder, CreateError> {
+) -> Result<impl Responder, Error> {
     let create_book = create_book.into_inner();
     let now = DateTime::now();
 
@@ -29,7 +29,7 @@ async fn handle(
     let id = insert_one_result
         .inserted_id
         .as_object_id()
-        .ok_or(CreateError::BadObjectId)?;
+        .ok_or(Error::BadObjectId)?;
 
     let book = BookResponse {
         id: id.to_hex(),
@@ -59,25 +59,25 @@ pub struct CreateBook {
 
 /// Possible errors while creating a book.
 #[derive(Debug)]
-pub enum CreateError {
+pub enum Error {
     Serialization(bson::ser::Error),
     MongoDb(mongodb::error::Error),
     BadObjectId,
 }
 
-impl From<bson::ser::Error> for CreateError {
+impl From<bson::ser::Error> for Error {
     fn from(err: bson::ser::Error) -> Self {
         Self::Serialization(err)
     }
 }
 
-impl From<mongodb::error::Error> for CreateError {
+impl From<mongodb::error::Error> for Error {
     fn from(err: mongodb::error::Error) -> Self {
         Self::MongoDb(err)
     }
 }
 
-impl ResponseError for CreateError {
+impl ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
         let response = ErrorResponse {
             status_code: self.status_code().as_u16(),
@@ -92,7 +92,7 @@ impl ResponseError for CreateError {
     }
 }
 
-impl fmt::Display for CreateError {
+impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "An internal error occurred.")
     }

@@ -20,7 +20,7 @@ async fn handle(
     info: web::Path<String>,
     update_book: web::Json<UpdateBook>,
     books: web::Data<Collection<Document>>,
-) -> Result<impl Responder, UpdateError> {
+) -> Result<impl Responder, Error> {
     let update_book = update_book.into_inner();
 
     let updated_document = books
@@ -32,7 +32,7 @@ async fn handle(
                 .build(),
         )
         .await?
-        .ok_or(UpdateError::NoSuchBook)?;
+        .ok_or(Error::NoSuchBook)?;
 
     let updated_book: BookResponse =
         bson::from_document::<BookDocument>(updated_document)?.into();
@@ -78,32 +78,32 @@ fn build_update(update_book: UpdateBook) -> Vec<Document> {
 
 /// Possible errors while updating a book.
 #[derive(Debug)]
-pub enum UpdateError {
+pub enum Error {
     ObjectId(bson::oid::Error),
     MongoDb(mongodb::error::Error),
     NoSuchBook,
     Deserialization(bson::de::Error),
 }
 
-impl From<bson::oid::Error> for UpdateError {
+impl From<bson::oid::Error> for Error {
     fn from(err: bson::oid::Error) -> Self {
         Self::ObjectId(err)
     }
 }
 
-impl From<mongodb::error::Error> for UpdateError {
+impl From<mongodb::error::Error> for Error {
     fn from(err: mongodb::error::Error) -> Self {
         Self::MongoDb(err)
     }
 }
 
-impl From<bson::de::Error> for UpdateError {
+impl From<bson::de::Error> for Error {
     fn from(err: bson::de::Error) -> Self {
         Self::Deserialization(err)
     }
 }
 
-impl ResponseError for UpdateError {
+impl ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
         let response = ErrorResponse {
             status_code: self.status_code().as_u16(),
@@ -115,16 +115,16 @@ impl ResponseError for UpdateError {
 
     fn status_code(&self) -> StatusCode {
         match self {
-            UpdateError::NoSuchBook => StatusCode::BAD_REQUEST,
+            Error::NoSuchBook => StatusCode::BAD_REQUEST,
             _ => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 }
 
-impl fmt::Display for UpdateError {
+impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            UpdateError::NoSuchBook => {
+            Error::NoSuchBook => {
                 write!(f, "Book does not exist.")
             }
             _ => write!(f, "An internal error occurred."),

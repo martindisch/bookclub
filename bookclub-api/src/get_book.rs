@@ -17,11 +17,11 @@ use crate::{BookDocument, BookResponse, ErrorResponse};
 async fn handle(
     info: web::Path<String>,
     books: web::Data<Collection<Document>>,
-) -> Result<impl Responder, GetError> {
+) -> Result<impl Responder, Error> {
     let document = books
         .find_one(doc! {"_id": ObjectId::parse_str(info.into_inner())?}, None)
         .await?
-        .ok_or(GetError::NoSuchBook)?;
+        .ok_or(Error::NoSuchBook)?;
 
     let book: BookResponse =
         bson::from_document::<BookDocument>(document)?.into();
@@ -31,32 +31,32 @@ async fn handle(
 
 /// Possible errors while getting a book.
 #[derive(Debug)]
-pub enum GetError {
+pub enum Error {
     ObjectId(bson::oid::Error),
     MongoDb(mongodb::error::Error),
     NoSuchBook,
     Deserialization(bson::de::Error),
 }
 
-impl From<bson::oid::Error> for GetError {
+impl From<bson::oid::Error> for Error {
     fn from(err: bson::oid::Error) -> Self {
         Self::ObjectId(err)
     }
 }
 
-impl From<mongodb::error::Error> for GetError {
+impl From<mongodb::error::Error> for Error {
     fn from(err: mongodb::error::Error) -> Self {
         Self::MongoDb(err)
     }
 }
 
-impl From<bson::de::Error> for GetError {
+impl From<bson::de::Error> for Error {
     fn from(err: bson::de::Error) -> Self {
         Self::Deserialization(err)
     }
 }
 
-impl ResponseError for GetError {
+impl ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
         let response = ErrorResponse {
             status_code: self.status_code().as_u16(),
@@ -68,16 +68,16 @@ impl ResponseError for GetError {
 
     fn status_code(&self) -> StatusCode {
         match self {
-            GetError::NoSuchBook => StatusCode::BAD_REQUEST,
+            Error::NoSuchBook => StatusCode::BAD_REQUEST,
             _ => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 }
 
-impl fmt::Display for GetError {
+impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            GetError::NoSuchBook => {
+            Error::NoSuchBook => {
                 write!(f, "Book does not exist.")
             }
             _ => write!(f, "An internal error occurred."),
