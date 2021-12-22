@@ -10,7 +10,7 @@ use std::{env, io::Result};
 async fn main() -> Result<()> {
     dotenv().ok();
 
-    Builder::from_env(Env::default().default_filter_or("info")).init();
+    Builder::from_env(Env::default().default_filter_or("debug")).init();
 
     let client = Client::with_uri_str(
         &env::var("MONGODB").expect("MONGODB env var not set."),
