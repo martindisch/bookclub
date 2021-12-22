@@ -2,30 +2,7 @@
 
 use std::{error, fmt};
 
-use crate::{
-    book_repository::{BookRepository, Error as RepositoryError},
-    Book, UpdateBook,
-};
-
-/// Represents the books domain.
-pub struct BookService {
-    repository: BookRepository,
-}
-
-impl BookService {
-    /// Creates a new service.
-    pub fn new(repository: BookRepository) -> Self {
-        Self { repository }
-    }
-
-    /// Updates a book.
-    pub async fn update_book(
-        &self,
-        update_book: UpdateBook,
-    ) -> Result<Book, Error> {
-        Ok(self.repository.update_book(update_book).await?)
-    }
-}
+use crate::book_repository::Error as RepositoryError;
 
 /// The error type for everything.
 #[derive(Debug)]

@@ -6,10 +6,7 @@ use mongodb::Client;
 
 use std::{env, io::Result};
 
-use bookclub_api::{
-    book_repository::BookRepository, book_service::BookService,
-    deprecated_handlers, handlers, ServiceContainer,
-};
+use bookclub_api::{handlers, ServiceContainer};
 
 #[actix_web::main]
 async fn main() -> Result<()> {
@@ -26,19 +23,13 @@ async fn main() -> Result<()> {
     let collection = database.collection("books");
 
     HttpServer::new(move || {
-        let book_repository = BookRepository::new(collection.clone());
-        let book_service = BookService::new(book_repository);
-
         App::new()
-            .app_data(Data::new(ServiceContainer::new(
-                book_service,
-                collection.clone(),
-            )))
+            .app_data(Data::new(ServiceContainer::new(collection.clone())))
             .wrap(Logger::default())
             .wrap(Cors::default().allow_any_origin())
             .service(handlers::get_books::handle)
             .service(handlers::create_book::handle)
-            .service(deprecated_handlers::update_book)
+            .service(handlers::update_book::handle)
     })
     .bind("127.0.0.1:8080")?
     .run()

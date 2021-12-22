@@ -5,6 +5,7 @@ use crate::Book;
 
 pub mod create_book;
 pub mod get_books;
+pub mod update_book;
 
 /// A book as it is stored in MongoDB.
 #[derive(Debug, Serialize, Deserialize)]

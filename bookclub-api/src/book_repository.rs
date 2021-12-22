@@ -1,49 +1,11 @@
 //! Contains data-access logic.
 
-use mongodb::{
-    bson::{self, doc, oid::ObjectId, DateTime, Document},
-    options::{FindOneAndUpdateOptions, ReturnDocument},
-    Collection,
-};
+use mongodb::bson::{self, doc, oid::ObjectId, DateTime};
 use serde::{Deserialize, Serialize};
 
 use std::{error, fmt};
 
-use crate::{Book, UpdateBook};
-
-/// Gives access to the MongoDB collection for books.
-pub struct BookRepository {
-    books: Collection<Document>,
-}
-
-impl BookRepository {
-    /// Creates a new repository.
-    pub fn new(books: Collection<Document>) -> Self {
-        Self { books }
-    }
-
-    /// Updates a book and returns the new one.
-    pub async fn update_book(
-        &self,
-        update_book: UpdateBook,
-    ) -> Result<Book, Error> {
-        let updated_document = self
-            .books
-            .find_one_and_update(
-                doc! {"_id": ObjectId::parse_str(&update_book.id)?},
-                build_update(update_book),
-                FindOneAndUpdateOptions::builder()
-                    .return_document(Some(ReturnDocument::After))
-                    .build(),
-            )
-            .await?
-            .ok_or(Error::NoSuchBook)?;
-        let updated_book: Book =
-            bson::from_document::<BookDocument>(updated_document)?.into();
-
-        Ok(updated_book)
-    }
-}
+use crate::Book;
 
 /// A book as it is stored in MongoDB.
 #[derive(Debug, Serialize, Deserialize)]
@@ -135,35 +97,4 @@ impl error::Error for Error {
             Self::NoSuchBook => None,
         }
     }
-}
-
-/// Builds the MongoDB documents representing the update.
-fn build_update(update_book: UpdateBook) -> Vec<Document> {
-    let mut updates = Vec::new();
-
-    // This is dumb. We could probably do something with serde to automatically
-    // turn it into a Document.
-    if let Some(value) = update_book.title {
-        updates.push(doc! {"$set": {"title": value}})
-    }
-    if let Some(value) = update_book.author {
-        updates.push(doc! {"$set": {"author": value}})
-    }
-    if let Some(value) = update_book.description {
-        updates.push(doc! {"$set": {"description": value}})
-    }
-    if let Some(value) = update_book.page_count {
-        updates.push(doc! {"$set": {"pageCount": value}})
-    }
-    if let Some(value) = update_book.pitch_by {
-        updates.push(doc! {"$set": {"pitchBy": value}})
-    }
-    if let Some(value) = update_book.first_suggested {
-        updates.push(doc! {"$set": {"firstSuggested": value}})
-    }
-    if let Some(value) = update_book.supporters {
-        updates.push(doc! {"$set": {"supporters": value}})
-    }
-
-    updates
 }

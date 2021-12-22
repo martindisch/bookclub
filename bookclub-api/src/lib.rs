@@ -2,8 +2,6 @@ use chrono::{DateTime, Utc};
 use mongodb::{bson::Document, Collection};
 use serde::{Deserialize, Serialize};
 
-use crate::book_service::BookService;
-
 pub mod book_repository;
 pub mod book_service;
 pub mod deprecated_handlers;
@@ -38,19 +36,12 @@ pub struct UpdateBook {
 
 /// Poor man's DI container.
 pub struct ServiceContainer {
-    book_service: BookService,
     books: Collection<Document>,
 }
 
 impl ServiceContainer {
     /// Creates a new container.
-    pub fn new(
-        book_service: BookService,
-        books: Collection<Document>,
-    ) -> Self {
-        Self {
-            book_service,
-            books,
-        }
+    pub fn new(books: Collection<Document>) -> Self {
+        Self { books }
     }
 }
