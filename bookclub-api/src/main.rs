@@ -6,8 +6,6 @@ use mongodb::{bson::Document, Client};
 
 use std::{env, io::Result};
 
-use bookclub_api::handlers;
-
 #[actix_web::main]
 async fn main() -> Result<()> {
     dotenv().ok();
@@ -27,9 +25,9 @@ async fn main() -> Result<()> {
             .app_data(Data::new(collection.clone()))
             .wrap(Logger::default())
             .wrap(Cors::default().allow_any_origin())
-            .service(handlers::get_books::handle)
-            .service(handlers::create_book::handle)
-            .service(handlers::update_book::handle)
+            .service(bookclub_api::get_books::handle)
+            .service(bookclub_api::create_book::handle)
+            .service(bookclub_api::update_book::handle)
     })
     .bind("127.0.0.1:8080")?
     .run()

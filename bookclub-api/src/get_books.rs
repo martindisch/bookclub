@@ -9,7 +9,7 @@ use mongodb::{
 };
 use std::fmt;
 
-use crate::handlers::{BookDocument, BookResponse, ErrorResponse};
+use crate::{BookDocument, BookResponse, ErrorResponse};
 
 #[get("/v1/books")]
 async fn handle(

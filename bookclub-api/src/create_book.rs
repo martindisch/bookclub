@@ -9,7 +9,7 @@ use mongodb::{
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-use crate::handlers::{BookResponse, ErrorResponse};
+use crate::{BookResponse, ErrorResponse};
 
 #[post("/v1/books")]
 async fn handle(
