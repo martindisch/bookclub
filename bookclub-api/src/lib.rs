@@ -5,7 +5,7 @@ use crate::book_service::BookService;
 
 pub mod book_repository;
 pub mod book_service;
-pub mod handlers;
+pub mod deprecated_handlers;
 
 /// A book.
 #[derive(Debug, Serialize, Deserialize)]
