@@ -16,7 +16,7 @@
   <h1 class="text-2xl">{title}</h1>
   <p class="mb-4">{author}</p>
 
-  <p class="mb-4 hyphens-auto text-justify">{description}</p>
+  <p class="mb-4 hyphens-auto text-justify whitespace-pre-wrap">{description}</p>
 
   <div class="grid grid-cols-3">
     <p>Page count</p>
