@@ -1,6 +1,6 @@
 import type { Book } from "./types";
 
-type BookResponse = {
+export type BookResponse = {
   id: string;
   title: string;
   author: string;
