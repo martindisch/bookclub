@@ -33,6 +33,7 @@ async fn main() -> Result<()> {
             .service(bookclub_api::create_book::handle)
             .service(bookclub_api::update_book::handle)
             .service(bookclub_api::get_books::handle)
+            .service(bookclub_api::get_book::handle)
     })
     .bind("127.0.0.1:8080")?
     .run()
