@@ -1,39 +1,37 @@
-use actix_web::{patch, web, HttpResponse, Responder};
+use actix_web::{
+    error::ResponseError, http::StatusCode, patch, web, HttpResponse,
+    HttpResponseBuilder, Responder,
+};
 use mongodb::{
     bson::{self, doc, oid::ObjectId, Document},
     options::{FindOneAndUpdateOptions, ReturnDocument},
     Collection,
 };
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
-use crate::{
-    book_service::Error,
-    handlers::{BookDocument, BookResponse},
-};
+use crate::handlers::{BookDocument, BookResponse, ErrorResponse};
 
 #[patch("/v1/books/{id}")]
 async fn handle(
     info: web::Path<String>,
     update_book: web::Json<UpdateBook>,
     books: web::Data<Collection<Document>>,
-) -> Result<impl Responder, Error> {
+) -> Result<impl Responder, UpdateError> {
     let update_book = update_book.into_inner();
 
     let updated_document = books
         .find_one_and_update(
-            doc! {"_id": ObjectId::parse_str(info.into_inner()).unwrap()},
+            doc! {"_id": ObjectId::parse_str(info.into_inner())?},
             build_update(update_book),
             FindOneAndUpdateOptions::builder()
                 .return_document(Some(ReturnDocument::After))
                 .build(),
         )
-        .await
-        .unwrap()
-        .unwrap();
+        .await?
+        .ok_or(UpdateError::NoSuchBook)?;
     let updated_book: BookResponse =
-        bson::from_document::<BookDocument>(updated_document)
-            .unwrap()
-            .into();
+        bson::from_document::<BookDocument>(updated_document)?.into();
 
     Ok(HttpResponse::Ok().json(updated_book))
 }
@@ -72,4 +70,60 @@ fn build_update(update_book: UpdateBook) -> Vec<Document> {
     }
 
     updates
+}
+
+/// Possible errors while updating a book.
+#[derive(Debug)]
+enum UpdateError {
+    ObjectId(bson::oid::Error),
+    MongoDb(mongodb::error::Error),
+    NoSuchBook,
+    Deserialization(bson::de::Error),
+}
+
+impl From<bson::oid::Error> for UpdateError {
+    fn from(err: bson::oid::Error) -> Self {
+        Self::ObjectId(err)
+    }
+}
+
+impl From<mongodb::error::Error> for UpdateError {
+    fn from(err: mongodb::error::Error) -> Self {
+        Self::MongoDb(err)
+    }
+}
+
+impl From<bson::de::Error> for UpdateError {
+    fn from(err: bson::de::Error) -> Self {
+        Self::Deserialization(err)
+    }
+}
+
+impl ResponseError for UpdateError {
+    fn error_response(&self) -> HttpResponse {
+        let response = ErrorResponse {
+            status_code: self.status_code().as_u16(),
+            message: self.to_string(),
+        };
+
+        HttpResponseBuilder::new(self.status_code()).json(response)
+    }
+
+    fn status_code(&self) -> StatusCode {
+        match self {
+            UpdateError::NoSuchBook => StatusCode::BAD_REQUEST,
+            _ => StatusCode::INTERNAL_SERVER_ERROR,
+        }
+    }
+}
+
+impl fmt::Display for UpdateError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            UpdateError::NoSuchBook => {
+                write!(f, "Book does not exist.")
+            }
+            _ => write!(f, "An internal error occurred."),
+        }
+    }
 }

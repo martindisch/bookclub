@@ -1,25 +1,32 @@
-use actix_web::{post, web, HttpResponse, Responder};
+use actix_web::{
+    error::ResponseError, http::StatusCode, post, web, HttpResponse,
+    HttpResponseBuilder, Responder,
+};
 use mongodb::{
     bson::{self, DateTime, Document},
     Collection,
 };
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
-use crate::{book_service::Error, handlers::BookResponse};
+use crate::handlers::{BookResponse, ErrorResponse};
 
 #[post("/v1/books")]
 async fn handle(
     create_book: web::Json<CreateBook>,
     books: web::Data<Collection<Document>>,
-) -> Result<impl Responder, Error> {
+) -> Result<impl Responder, CreateError> {
     let create_book = create_book.into_inner();
     let now = DateTime::now();
 
-    let mut document = bson::to_document(&create_book).unwrap();
+    let mut document = bson::to_document(&create_book)?;
     document.insert("firstSuggested", now);
 
-    let insert_one_result = books.insert_one(document, None).await.unwrap();
-    let id = insert_one_result.inserted_id.as_object_id().unwrap();
+    let insert_one_result = books.insert_one(document, None).await?;
+    let id = insert_one_result
+        .inserted_id
+        .as_object_id()
+        .ok_or(CreateError::BadObjectId)?;
 
     let book = BookResponse {
         id: id.to_hex(),
@@ -45,4 +52,45 @@ struct CreateBook {
     pub page_count: u32,
     pub pitch_by: String,
     pub supporters: Vec<String>,
+}
+
+/// Possible errors while creating a book.
+#[derive(Debug)]
+enum CreateError {
+    Serialization(bson::ser::Error),
+    MongoDb(mongodb::error::Error),
+    BadObjectId,
+}
+
+impl ResponseError for CreateError {
+    fn error_response(&self) -> HttpResponse {
+        let response = ErrorResponse {
+            status_code: self.status_code().as_u16(),
+            message: self.to_string(),
+        };
+
+        HttpResponseBuilder::new(self.status_code()).json(response)
+    }
+
+    fn status_code(&self) -> StatusCode {
+        StatusCode::INTERNAL_SERVER_ERROR
+    }
+}
+
+impl fmt::Display for CreateError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "An internal error occurred.")
+    }
+}
+
+impl From<bson::ser::Error> for CreateError {
+    fn from(err: bson::ser::Error) -> Self {
+        Self::Serialization(err)
+    }
+}
+
+impl From<mongodb::error::Error> for CreateError {
+    fn from(err: mongodb::error::Error) -> Self {
+        Self::MongoDb(err)
+    }
 }

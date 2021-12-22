@@ -50,3 +50,11 @@ impl Into<BookResponse> for BookDocument {
         }
     }
 }
+
+/// The error response that will be serialized to the body.
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ErrorResponse {
+    status_code: u16,
+    message: String,
+}
