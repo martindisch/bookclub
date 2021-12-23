@@ -37,7 +37,7 @@ async fn main() -> Result<()> {
             .service(bookclub_api::delete_book::handle)
             .service(bookclub_api::vote_book::handle)
     })
-    .bind("127.0.0.1:8080")?
+    .bind("0.0.0.0:8080")?
     .run()
     .await
 }
