@@ -24,17 +24,26 @@
   import Book from "../components/Book.svelte";
   import List from "../components/List.svelte";
   import Button from "../components/Button.svelte";
+  import TextModal from "../components/TextModal.svelte";
 
   export let books: BookProps[];
 
+  let showNamePrompt = false;
+
   const vote = async (id: string) => {
+    const userName = localStorage.getItem("userName");
+    if (userName === null) {
+      showNamePrompt = true;
+      return;
+    }
+
     const res = await fetch(`${import.meta.env.VITE_API}/v1/books/${id}/supporters`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        supporter: "Thomas the tank",
+        supporter: userName,
       }),
     });
 
@@ -42,6 +51,11 @@
     // This is not great, ideally we'd pass the index into the current function
     const index = books.findIndex((b) => b.id === id);
     books[index] = updatedBook;
+  };
+
+  const storeNameAndClosePrompt = (userName: string) => {
+    localStorage.setItem("userName", userName);
+    showNamePrompt = false;
   };
 </script>
 
@@ -57,3 +71,6 @@
   </p>
 {/if}
 <Button text="+" rounded={true} on:click={() => goto("/books/new")} />
+{#if showNamePrompt}
+  <TextModal prompt="Enter your name to start voting" onSave={storeNameAndClosePrompt} />
+{/if}
