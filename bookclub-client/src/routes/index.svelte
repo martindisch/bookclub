@@ -30,9 +30,15 @@
   const vote = () => alert("Voted for a book");
 </script>
 
-<List>
-  {#each books as book (book.id)}
-    <Book {...book} onVote={vote} />
-  {/each}
-</List>
+{#if books.length > 0}
+  <List>
+    {#each books as book (book.id)}
+      <Book {...book} onVote={vote} />
+    {/each}
+  </List>
+{:else}
+  <p class="text-center">
+    Looks like we don't have any books yet. Add some with the button in the bottom right corner.
+  </p>
+{/if}
 <Button text="+" rounded={true} on:click={() => goto("/books/new")} />
