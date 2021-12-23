@@ -27,13 +27,28 @@
 
   export let books: BookProps[];
 
-  const vote = () => alert("Voted for a book");
+  const vote = async (id: string) => {
+    const res = await fetch(`${import.meta.env.VITE_API}/v1/books/${id}/supporters`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        supporter: "Thomas the tank",
+      }),
+    });
+
+    const updatedBook = responseToBook(await res.json());
+    // This is not great, ideally we'd pass the index into the current function
+    const index = books.findIndex((b) => b.id === id);
+    books[index] = updatedBook;
+  };
 </script>
 
 {#if books.length > 0}
   <List>
     {#each books as book (book.id)}
-      <Book {...book} onVote={vote} />
+      <Book {...book} onVote={() => vote(book.id)} />
     {/each}
   </List>
 {:else}
