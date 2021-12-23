@@ -1,5 +1,9 @@
 use actix_cors::Cors;
-use actix_web::{middleware::Logger, web::Data, App, HttpServer};
+use actix_web::{
+    middleware::Logger,
+    web::{self, Data},
+    App, HttpServer,
+};
 use dotenv::dotenv;
 use env_logger::{Builder, Env};
 use mongodb::{bson::Document, Client};
@@ -30,12 +34,15 @@ async fn main() -> Result<()> {
                     .allow_any_method()
                     .allow_any_header(),
             )
-            .service(bookclub_api::create_book::handle)
-            .service(bookclub_api::get_books::handle)
-            .service(bookclub_api::get_book::handle)
-            .service(bookclub_api::update_book::handle)
-            .service(bookclub_api::delete_book::handle)
-            .service(bookclub_api::vote_book::handle)
+            .service(
+                web::scope("/api")
+                    .service(bookclub_api::create_book::handle)
+                    .service(bookclub_api::get_books::handle)
+                    .service(bookclub_api::get_book::handle)
+                    .service(bookclub_api::update_book::handle)
+                    .service(bookclub_api::delete_book::handle)
+                    .service(bookclub_api::vote_book::handle),
+            )
     })
     .bind("0.0.0.0:8080")?
     .run()
