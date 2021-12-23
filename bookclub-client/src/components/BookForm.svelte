@@ -1,11 +1,11 @@
 <script lang="ts" context="module">
-  export interface Book {
+  export type Book = {
     title: string;
     author: string;
     description: string;
     pageCount: number;
     pitchBy: string;
-  }
+  };
 </script>
 
 <script lang="ts">
