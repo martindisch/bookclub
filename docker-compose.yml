@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  db:
+    image: mongo:5-focal
+    restart: on-failure
+    volumes:
+      - mongo:/data/db
+  api:
+    build: ./bookclub-api
+    env_file: ./bookclub-api/.env
+    restart: on-failure
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+  client:
+    build: ./bookclub-client
+    restart: on-failure
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+volumes:
+  mongo:
