@@ -7,6 +7,7 @@ pub mod delete_book;
 pub mod get_book;
 pub mod get_books;
 pub mod update_book;
+pub mod vote_book;
 
 /// A book as returned by the API.
 #[derive(Debug, Serialize, Deserialize)]
