@@ -7,6 +7,7 @@
 <div class="flex flex-col gap-2">
   <label for={id}>{label}</label>
   <input
+    autocapitalize="words"
     type="text"
     bind:value
     {id}
