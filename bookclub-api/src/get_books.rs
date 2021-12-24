@@ -1,69 +1,37 @@
 //! Logic for getting books.
 
 use actix_web::{
-    error::ResponseError, get, http::StatusCode, web, HttpResponse,
-    HttpResponseBuilder, Responder,
+    error::{Error, ErrorInternalServerError},
+    get, web, HttpResponse, Responder,
 };
 use futures::StreamExt;
 use mongodb::{
     bson::{self, Document},
     Collection,
 };
-use std::fmt;
 
-use crate::{BookDocument, BookResponse, ErrorResponse};
+use crate::{BookDocument, BookResponse};
 
 /// Endpoint handler for getting books.
 #[get("/v1/books")]
 async fn handle(
     books: web::Data<Collection<Document>>,
 ) -> Result<impl Responder, Error> {
-    let mut cursor = books.find(None, None).await?;
+    let mut cursor = books
+        .find(None, None)
+        .await
+        .map_err(|_| ErrorInternalServerError("Database error"))?;
     let mut books: Vec<BookResponse> = Vec::new();
 
     while let Some(Ok(document)) = cursor.next().await {
-        books.push(bson::from_document::<BookDocument>(document)?.into());
+        books.push(
+            bson::from_document::<BookDocument>(document)
+                .map_err(|_| {
+                    ErrorInternalServerError("Deserialization error")
+                })?
+                .into(),
+        );
     }
 
     Ok(HttpResponse::Ok().json(books))
-}
-
-/// Possible errors while getting books.
-#[derive(Debug)]
-pub enum Error {
-    MongoDb(mongodb::error::Error),
-    Deserialization(bson::de::Error),
-}
-
-impl From<mongodb::error::Error> for Error {
-    fn from(err: mongodb::error::Error) -> Self {
-        Self::MongoDb(err)
-    }
-}
-
-impl From<bson::de::Error> for Error {
-    fn from(err: bson::de::Error) -> Self {
-        Self::Deserialization(err)
-    }
-}
-
-impl ResponseError for Error {
-    fn error_response(&self) -> HttpResponse {
-        let response = ErrorResponse {
-            status_code: self.status_code().as_u16(),
-            message: self.to_string(),
-        };
-
-        HttpResponseBuilder::new(self.status_code()).json(response)
-    }
-
-    fn status_code(&self) -> StatusCode {
-        StatusCode::INTERNAL_SERVER_ERROR
-    }
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "An internal error occurred.")
-    }
 }

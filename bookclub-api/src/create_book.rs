@@ -1,17 +1,16 @@
 //! Logic for creating a book.
 
 use actix_web::{
-    error::ResponseError, http::StatusCode, post, web, HttpResponse,
-    HttpResponseBuilder, Responder,
+    error::{Error, ErrorInternalServerError},
+    post, web, HttpResponse, Responder,
 };
 use mongodb::{
     bson::{self, DateTime, Document},
     Collection,
 };
 use serde::{Deserialize, Serialize};
-use std::fmt;
 
-use crate::{BookResponse, ErrorResponse};
+use crate::BookResponse;
 
 /// Endpoint handler for creating a book.
 #[post("/v1/books")]
@@ -22,14 +21,18 @@ async fn handle(
     let create_book = create_book.into_inner();
     let now = DateTime::now();
 
-    let mut document = bson::to_document(&create_book)?;
+    let mut document = bson::to_document(&create_book)
+        .map_err(|_| ErrorInternalServerError("Serialization error"))?;
     document.insert("firstSuggested", now);
 
-    let insert_one_result = books.insert_one(document, None).await?;
+    let insert_one_result = books
+        .insert_one(document, None)
+        .await
+        .map_err(|_| ErrorInternalServerError("Database error"))?;
     let id = insert_one_result
         .inserted_id
         .as_object_id()
-        .ok_or(Error::BadObjectId)?;
+        .ok_or_else(|| ErrorInternalServerError("Invalid ID"))?;
 
     let book = BookResponse {
         id: id.to_hex(),
@@ -55,45 +58,4 @@ pub struct CreateBook {
     pub page_count: u32,
     pub pitch_by: String,
     pub supporters: Vec<String>,
-}
-
-/// Possible errors while creating a book.
-#[derive(Debug)]
-pub enum Error {
-    Serialization(bson::ser::Error),
-    MongoDb(mongodb::error::Error),
-    BadObjectId,
-}
-
-impl From<bson::ser::Error> for Error {
-    fn from(err: bson::ser::Error) -> Self {
-        Self::Serialization(err)
-    }
-}
-
-impl From<mongodb::error::Error> for Error {
-    fn from(err: mongodb::error::Error) -> Self {
-        Self::MongoDb(err)
-    }
-}
-
-impl ResponseError for Error {
-    fn error_response(&self) -> HttpResponse {
-        let response = ErrorResponse {
-            status_code: self.status_code().as_u16(),
-            message: self.to_string(),
-        };
-
-        HttpResponseBuilder::new(self.status_code()).json(response)
-    }
-
-    fn status_code(&self) -> StatusCode {
-        StatusCode::INTERNAL_SERVER_ERROR
-    }
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "An internal error occurred.")
-    }
 }
