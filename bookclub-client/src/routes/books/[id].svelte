@@ -45,4 +45,8 @@
   };
 </script>
 
+<svelte:head>
+  <title>{book.title}</title>
+</svelte:head>
+
 <BookForm {...book} onSave={updateBook} onDelete={deleteBook} />

@@ -58,6 +58,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>List of Open Books</title>
+</svelte:head>
+
 {#if books.length > 0}
   <List>
     {#each books as book (book.id)}

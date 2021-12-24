@@ -18,4 +18,8 @@
   };
 </script>
 
+<svelte:head>
+  <title>New Book</title>
+</svelte:head>
+
 <BookForm onSave={saveBook} />
