@@ -1,7 +1,6 @@
 <script lang="ts" context="module">
   import type { Load } from "@sveltejs/kit";
-  import { responseToBook } from "../api";
-  import type { Book as BookProps } from "../types";
+  import { responseToBook, Book as BookProps } from "../api";
 
   export const load: Load = async ({ fetch }) => {
     const res = await fetch(`${import.meta.env.VITE_API}/v1/books`);

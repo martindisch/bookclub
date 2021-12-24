@@ -1,5 +1,3 @@
-import type { Book } from "./types";
-
 export type BookResponse = {
   id: string;
   title: string;
@@ -16,4 +14,15 @@ export const responseToBook = (response: BookResponse): Book => {
     ...response,
     firstSuggested: new Date(Date.parse(response.firstSuggested)),
   };
+};
+
+export type Book = {
+  id: string;
+  title: string;
+  author: string;
+  description: string;
+  pageCount: number;
+  pitchBy: string;
+  firstSuggested: Date;
+  supporters: string[];
 };
