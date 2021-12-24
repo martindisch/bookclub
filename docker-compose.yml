@@ -7,7 +7,8 @@ services:
       - mongo:/data/db
   api:
     build: ./bookclub-api
-    env_file: ./bookclub-api/.env
+    environment:
+      - MONGODB=mongodb://db
     restart: always
     depends_on:
       - db
