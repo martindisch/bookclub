@@ -16,3 +16,10 @@
 >
   {text}
 </button>
+
+<style>
+  /* Kill ugly tap highlight in Chromium */
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+</style>
