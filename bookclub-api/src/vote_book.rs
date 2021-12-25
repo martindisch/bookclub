@@ -27,7 +27,12 @@ async fn handle(
     let updated_document = books
         .find_one_and_update(
             doc! {"_id": id},
-            doc! {"$addToSet": {"supporters": vote_book.supporter}},
+            vec![
+                doc! {"$set": {"supporters":
+                    {"$setUnion": ["$supporters", [vote_book.supporter]
+                ]}}},
+                doc! {"$set": {"supporterCount": {"$size": "$supporters"}}},
+            ],
             FindOneAndUpdateOptions::builder()
                 .return_document(Some(ReturnDocument::After))
                 .build(),

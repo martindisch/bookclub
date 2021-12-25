@@ -36,6 +36,7 @@ struct BookDocument {
     pitch_by: String,
     first_suggested: BsonDateTime,
     supporters: Vec<String>,
+    supporter_count: u32,
 }
 
 #[allow(clippy::from_over_into)]

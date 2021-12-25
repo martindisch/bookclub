@@ -6,7 +6,8 @@ use actix_web::{
 };
 use futures::StreamExt;
 use mongodb::{
-    bson::{self, Document},
+    bson::{self, doc, Document},
+    options::FindOptions,
     Collection,
 };
 
@@ -18,7 +19,12 @@ async fn handle(
     books: web::Data<Collection<Document>>,
 ) -> Result<impl Responder, Error> {
     let mut cursor = books
-        .find(None, None)
+        .find(
+            None,
+            FindOptions::builder()
+                .sort(doc! {"supporterCount": -1})
+                .build(),
+        )
         .await
         .map_err(|_| ErrorInternalServerError("Database error"))?;
     let mut books: Vec<BookResponse> = Vec::new();

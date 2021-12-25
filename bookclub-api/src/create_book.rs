@@ -24,6 +24,7 @@ async fn handle(
     let mut document = bson::to_document(&create_book)
         .map_err(|_| ErrorInternalServerError("Serialization error"))?;
     document.insert("firstSuggested", now);
+    document.insert("supporterCount", create_book.supporters.len() as u32);
 
     let insert_one_result = books
         .insert_one(document, None)
