@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+mongorestore --drop --nsInclude bookclub.books --dir "$1" mongodb://172.19.0.2
