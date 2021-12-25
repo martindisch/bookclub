@@ -13,7 +13,7 @@
   export let onVote: () => void;
 </script>
 
-<Card>
+<Card {id}>
   <h1 class="text-2xl">
     <a class="hover:underline" href={`/books/${id}`}>{title}</a>
   </h1>
