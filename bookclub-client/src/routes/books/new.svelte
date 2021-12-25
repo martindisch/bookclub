@@ -1,9 +1,10 @@
 <script lang="ts">
   import BookForm, { Book } from "../../components/BookForm.svelte";
+  import { responseToBook } from "../../api";
   import { goto } from "$app/navigation";
 
   const saveBook = async (book: Book) => {
-    await fetch(`${import.meta.env.VITE_API}/v1/books`, {
+    const res = await fetch(`${import.meta.env.VITE_API}/v1/books`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -13,8 +14,9 @@
         supporters: [book.pitchBy],
       }),
     });
+    const newBook = responseToBook(await res.json());
 
-    goto("/");
+    goto(`/#${newBook.id}`);
   };
 </script>
 
