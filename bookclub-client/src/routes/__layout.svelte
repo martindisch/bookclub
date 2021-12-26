@@ -7,6 +7,7 @@
   <link rel="icon" href="/icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="robots" content="noindex" />
 </svelte:head>
 
 <div class="min-h-screen bg-gray-900 p-6 text-gray-100 flex justify-center">
