@@ -27,12 +27,16 @@
 
   export let books: BookProps[];
 
-  let showNamePrompt = false;
+  let storeNameAndVote: ((userName: string) => void) | null = null;
 
   const vote = async (id: string) => {
     const userName = localStorage.getItem("userName");
     if (userName === null) {
-      showNamePrompt = true;
+      storeNameAndVote = (userName: string) => {
+        localStorage.setItem("userName", userName);
+        storeNameAndVote = null;
+        vote(id);
+      };
       return;
     }
 
@@ -50,11 +54,6 @@
     // This is not great, ideally we'd pass the index into the current function
     const index = books.findIndex((b) => b.id === id);
     books[index] = updatedBook;
-  };
-
-  const storeNameAndClosePrompt = (userName: string) => {
-    localStorage.setItem("userName", userName);
-    showNamePrompt = false;
   };
 </script>
 
@@ -74,6 +73,6 @@
   </p>
 {/if}
 <Button text="+" rounded={true} on:click={() => goto("/books/new")} />
-{#if showNamePrompt}
-  <TextModal prompt="Enter your name to start voting" onSave={storeNameAndClosePrompt} />
+{#if storeNameAndVote}
+  <TextModal prompt="Enter your name to start voting" onSave={storeNameAndVote} />
 {/if}
