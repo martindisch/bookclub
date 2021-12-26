@@ -63,7 +63,7 @@ async fn deploy_indexes(
     collection
         .create_index(
             IndexModel::builder()
-                .keys(doc! {"supporterCount": -1})
+                .keys(doc! {"supporterCount": -1, "firstSuggested": 1})
                 .build(),
             None,
         )

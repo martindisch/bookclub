@@ -22,7 +22,7 @@ async fn handle(
         .find(
             None,
             FindOptions::builder()
-                .sort(doc! {"supporterCount": -1})
+                .sort(doc! {"supporterCount": -1, "firstSuggested": 1})
                 .build(),
         )
         .await
